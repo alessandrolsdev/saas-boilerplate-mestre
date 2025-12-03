@@ -8,13 +8,19 @@
 }
 
 body {
-  font-family: 'Inter', sans-serif; // Ou a fonte que preferir
-  background-color: $background-bg;
+  font-family: $font-family; // Agora usa a variável correta
+  background-color: $bg-app; // Agora usa a variável correta
   color: $text-main;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
   text-decoration: none;
   color: inherit;
+  transition: color 0.2s;
+}
+
+button {
+  font-family: inherit;
 }

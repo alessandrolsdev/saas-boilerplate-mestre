@@ -1,9 +1,43 @@
-// Aqui mora o segredo da clonagem rápida.
-// Basta alterar essas variáveis para mudar de "Advogado" para "Construção".
-$primary-color: #0F172A; // Ex: Azul escuro corporativo
-$secondary-color: #334155;
-$accent-color: #3B82F6;
-$background-bg: #F8FAFC;
-$text-main: #1E293B;
+// --- 1. PALETA DE CORES (Brand Identity) ---
+$primary-color: #0f172a;       // Azul Profundo
+$primary-hover: #1e293b;
+$accent-color: #3b82f6;        // Azul Vibrante
+$accent-hover: #2563eb;
 
-$border-radius: 8px;
+// --- 2. SUPERFÍCIES E FUNDOS ---
+$bg-app: #f8fafc;              // Fundo geral
+$bg-surface: #ffffff;          // Cards e Sidebar
+$border-color: #e2e8f0;
+
+// --- 3. TEXTOS ---
+$text-main: #334155;
+$text-muted: #64748b;
+$text-inverse: #ffffff;
+
+// --- 4. STATUS (Feedback) ---
+$success: #10b981;
+$warning: #f59e0b;
+$danger: #ef4444;
+$info: #0ea5e9;
+
+// --- 5. ESTRUTURA E UI ---
+$sidebar-width: 260px;
+$header-height: 70px;
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 12px;
+$radius-full: 9999px;
+
+// --- 6. SOMBRAS (Profundidade) ---
+$shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+$shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+$shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+// --- 7. TIPOGRAFIA ---
+$font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+// --- 8. RETROCOMPATIBILIDADE (LEGADO) ---
+// Tradução das variáveis antigas para as novas (Evita quebras)
+$background-bg: $bg-app;
+$secondary-color: $text-muted;
+$border-radius: $radius-md;

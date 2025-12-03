@@ -17,7 +17,7 @@ const handleLogin = async () => {
   
   try {
     await authStore.login(email.value, password.value);
-    router.push('/dashboard'); // Redireciona após sucesso
+    router.push('/dashboard');
   } catch (error) {
     errorMessage.value = 'Email ou senha incorretos.';
   } finally {
@@ -28,114 +28,135 @@ const handleLogin = async () => {
 
 <template>
   <div class="login-wrapper">
-    <div class="login-card">
-      <h2>Acessar Sistema</h2>
-      <p class="subtitle">Entre com suas credenciais</p>
+    <div class="login-container">
+      <div class="brand-header">
+        <span class="logo">🚀</span>
+        <h1>SaaS Mestre</h1>
+        <p>Bem-vindo de volta</p>
+      </div>
       
-      <form @submit.prevent="handleLogin">
+      <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
-          <label>Email</label>
-          <input type="email" v-model="email" required placeholder="admin@exemplo.com" />
+          <label>Email Corporativo</label>
+          <input type="email" v-model="email" required placeholder="seunome@empresa.com" />
         </div>
         
         <div class="form-group">
           <label>Senha</label>
-          <input type="password" v-model="password" required placeholder="********" />
+          <input type="password" v-model="password" required placeholder="••••••••" />
         </div>
 
-        <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+        <div v-if="errorMessage" class="error-alert">
+          {{ errorMessage }}
+        </div>
 
-        <button type="submit" :disabled="isLoading">
-          {{ isLoading ? 'Entrando...' : 'Entrar' }}
+        <button type="submit" :disabled="isLoading" class="btn-login">
+          {{ isLoading ? 'Acessando...' : 'Entrar na Plataforma' }}
         </button>
       </form>
+      
+      <div class="footer-links">
+        <a href="#">Esqueceu a senha?</a>
+      </div>
     </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-// Importa variáveis globais automaticamente se configurou o vite.config.js
-// Caso contrário: @use '@/assets/styles/variables' as *;
-
 .login-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: $background-bg;
+  background-color: $bg-app;
 }
 
-.login-card {
-  background: white;
-  padding: 2.5rem;
-  border-radius: $border-radius;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+.login-container {
+  background: $bg-surface;
   width: 100%;
   max-width: 400px;
-  text-align: center;
-
-  h2 {
-    color: $primary-color;
-    margin-bottom: 0.5rem;
-  }
+  padding: 2.5rem;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-lg;
+  border: 1px solid $border-color;
   
-  .subtitle {
-    color: $secondary-color;
+  .brand-header {
+    text-align: center;
     margin-bottom: 2rem;
-    font-size: 0.9rem;
+    
+    .logo { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+    h1 { color: $primary-color; font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
+    p { color: $text-muted; font-size: 0.95rem; }
   }
 }
 
-.form-group {
-  margin-bottom: 1.5rem;
-  text-align: left;
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
   
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: $text-main;
-    font-size: 0.9rem;
-    font-weight: 600;
-  }
-  
-  input {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #e2e8f0;
-    border-radius: $border-radius;
-    outline: none;
-    transition: border-color 0.2s;
+  .form-group {
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: $text-main;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
     
-    &:focus {
-      border-color: $accent-color;
+    input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 1px solid $border-color;
+      border-radius: $radius-md;
+      font-size: 1rem;
+      color: $text-main;
+      background: $bg-app;
+      outline: none;
+      transition: all 0.2s;
+      
+      &:focus {
+        border-color: $accent-color;
+        box-shadow: 0 0 0 3px rgba($accent-color, 0.1);
+        background: white;
+      }
     }
   }
-}
 
-button {
-  width: 100%;
-  padding: 0.85rem;
-  background-color: $accent-color;
-  color: white;
-  border: none;
-  border-radius: $border-radius;
-  font-weight: bold;
-  cursor: pointer;
-  transition: opacity 0.2s;
-  
-  &:hover {
-    opacity: 0.9;
-  }
-  
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
+  .btn-login {
+    margin-top: 0.5rem;
+    padding: 0.85rem;
+    background-color: $primary-color;
+    color: white;
+    border: none;
+    border-radius: $radius-md;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    
+    &:hover { background-color: $primary-hover; }
+    &:disabled { opacity: 0.7; cursor: not-allowed; }
   }
 }
 
-.error {
-  color: #ef4444;
+.error-alert {
+  padding: 0.75rem;
+  background-color: rgba($danger, 0.1);
+  color: $danger;
   font-size: 0.85rem;
-  margin-bottom: 1rem;
+  border-radius: $radius-sm;
+  text-align: center;
+}
+
+.footer-links {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 0.85rem;
+  
+  a {
+    color: $text-muted;
+    &:hover { color: $accent-color; text-decoration: underline; }
+  }
 }
 </style>

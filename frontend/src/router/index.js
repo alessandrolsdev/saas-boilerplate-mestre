@@ -19,6 +19,18 @@ const router = createRouter({
     {
       path: '/',
       redirect: '/dashboard'
+    },
+    {
+      path: '/clients',
+      name: 'clients',
+      component: () => import('../views/ClientsView.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
+      path: '/finance',
+      name: 'finance',
+      component: () => import('../views/ChargesView.vue'),
+      meta: { requiresAuth: true }
     }
   ]
 })
@@ -26,7 +38,7 @@ const router = createRouter({
 // Navigation Guard (Proteção de Rotas)
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
-  
+
   if (to.meta.requiresAuth && !token) {
     next('/login');
   } else {
