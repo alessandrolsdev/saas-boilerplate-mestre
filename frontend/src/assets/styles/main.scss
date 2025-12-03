@@ -1,0 +1,20 @@
+/* Reset básico e estilos globais */
+@use './variables' as *;
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif; // Ou a fonte que preferir
+  background-color: $background-bg;
+  color: $text-main;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}

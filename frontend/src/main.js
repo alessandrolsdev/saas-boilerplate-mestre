@@ -1,5 +1,12 @@
 import { createApp } from 'vue'
-import './style.css'
+import { createPinia } from 'pinia' // Importando Pinia
+import './assets/styles/main.scss' // Seu SASS global
 import App from './App.vue'
+import router from './router' // Vamos configurar já já
 
-createApp(App).mount('#app')
+const app = createApp(App)
+
+app.use(createPinia()) // Ativando Pinia
+app.use(router)
+
+app.mount('#app')
