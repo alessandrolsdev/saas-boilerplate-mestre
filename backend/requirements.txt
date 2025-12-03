@@ -1,0 +1,12 @@
+fastapi
+uvicorn[standard]
+sqlalchemy          # ORM para o Banco
+psycopg2-binary     # Driver do Postgres
+alembic             # Migrações de Schema
+pydantic-settings   # Gestão de .env
+python-jose[cryptography] # Para JWT
+passlib[bcrypt]     # Hash de senhas
+python-multipart    # Para login via form
+apscheduler         # A chave para substituir o n8n (agendamento de tarefas)
+requests            # Para chamar API do Asaas
+email-validator
