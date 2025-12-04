@@ -6,7 +6,11 @@ const props = defineProps({
     type: String,
     default: 'master-primary'
   },
-  icon: Object // Componente do ícone Lucide
+  icon: Object, // Componente do ícone Lucide
+  className: {
+    type: String,
+    default: ''
+  }
 });
 
 const baseStyles = "inline-flex items-center justify-center px-8 py-4 text-base font-medium transition-all duration-300 transform hover:-translate-y-1 cursor-pointer";
@@ -25,7 +29,11 @@ const variants = {
   'master-secondary': "bg-white/10 text-white backdrop-blur-sm border border-white/20 rounded-full hover:bg-white/20",
 };
 
-const classes = computed(() => `${baseStyles} ${variants[props.variant] || variants['master-primary']}`);
+// Combina as classes base, a variante e classes extras passadas via prop
+const classes = computed(() => {
+  const variantClass = variants[props.variant] || variants['master-primary'];
+  return `${baseStyles} ${variantClass} ${props.className}`;
+});
 </script>
 
 <template>

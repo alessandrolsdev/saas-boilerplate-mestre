@@ -8,24 +8,18 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'));
   const router = useRouter();
 
-  // Computed: Verifica se está logado baseado na existência do token
   const isAuthenticated = computed(() => !!token.value);
 
   async function login(email, password) {
     try {
-      // O formulário envia x-www-form-urlencoded (padrão do OAuth2 do FastAPI)
       const params = new URLSearchParams();
-      params.append('username', email); // FastAPI espera 'username', não 'email'
+      params.append('username', email);
       params.append('password', password);
 
       const { data } = await api.post('/auth/login', params);
       
-      // Sucesso: Salva token e atualiza estado
       token.value = data.access_token;
       localStorage.setItem('token', data.access_token);
-      
-      // Opcional: Buscar dados do usuário logo após login
-      // await fetchUser(); 
       
       return true;
     } catch (error) {
@@ -34,12 +28,27 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  async function register(userData) {
+    try {
+      // 1. Cria o usuário no backend
+      await api.post('/auth/register', userData);
+      
+      // 2. Se deu certo, já faz o login automático para não obrigar o usuário a digitar tudo de novo
+      await login(userData.email, userData.password);
+      
+      return true;
+    } catch (error) {
+      console.error('Erro no registro:', error);
+      throw error;
+    }
+  }
+
   function logout() {
     token.value = null;
     user.value = null;
     localStorage.removeItem('token');
-    // Redirecionar via router no componente ou aqui
+    // O redirecionamento geralmente é feito no componente, mas pode ser forçado aqui se quiser
   }
 
-  return { user, token, isAuthenticated, login, logout };
+  return { user, token, isAuthenticated, login, logout, register };
 });

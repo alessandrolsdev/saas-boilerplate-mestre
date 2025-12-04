@@ -1,6 +1,8 @@
 <script setup>
 import UiButton from '@/components/UiButton.vue';
-import { Scale, ChevronRight, ShieldCheck, Clock } from 'lucide-vue-next';
+import { 
+  Scale, Gavel, ShieldCheck, FileText, Clock, ChevronRight 
+} from 'lucide-vue-next';
 </script>
 
 <template>
@@ -17,8 +19,9 @@ import { Scale, ChevronRight, ShieldCheck, Clock } from 'lucide-vue-next';
           
           <div class="hidden md:flex items-center space-x-8">
             <a href="#" class="text-sm text-slate-300 hover:text-[#C5A059] transition-colors uppercase tracking-widest">Soluções</a>
+            <a href="#" class="text-sm text-slate-300 hover:text-[#C5A059] transition-colors uppercase tracking-widest">Escritórios</a>
             <router-link to="/login">
-              <UiButton variant="legal-outline" class="!px-6 !py-2 text-sm !h-auto">Área do Cliente</UiButton>
+              <UiButton variant="legal-outline" className="!px-6 !py-2 text-sm">Área do Cliente</UiButton>
             </router-link>
           </div>
         </div>
@@ -26,12 +29,13 @@ import { Scale, ChevronRight, ShieldCheck, Clock } from 'lucide-vue-next';
     </nav>
 
     <section class="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
+      <div class="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-[#1e293b] to-transparent opacity-20 pointer-events-none"></div>
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div class="space-y-8">
             <div class="inline-flex items-center gap-2 px-3 py-1 border border-[#C5A059]/30 rounded-full bg-[#C5A059]/10">
               <span class="w-2 h-2 rounded-full bg-[#C5A059] animate-pulse"></span>
-              <span class="text-xs font-medium text-[#C5A059] tracking-widest uppercase">Software Jurídico #1</span>
+              <span class="text-xs font-medium text-[#C5A059] tracking-widest uppercase">Software Jurídico #1 do Brasil</span>
             </div>
             
             <h1 class="text-5xl lg:text-7xl font-serif text-white leading-tight">
@@ -42,13 +46,23 @@ import { Scale, ChevronRight, ShieldCheck, Clock } from 'lucide-vue-next';
             </h1>
             
             <p class="text-lg text-slate-400 max-w-lg leading-relaxed border-l-2 border-[#C5A059] pl-6">
-              A inteligência definitiva para escritórios que não admitem erros.
+              A inteligência definitiva para escritórios que não admitem erros. Elimine a papelada, automatize o follow-up e foque na estratégia jurídica.
             </p>
             
             <div class="flex flex-col sm:flex-row gap-4">
-              <router-link to="/login">
-                <UiButton variant="legal-primary" :icon="ChevronRight">Começar Agora</UiButton>
+              <router-link to="/register">
+                <UiButton variant="legal-primary" :icon="ChevronRight">Começar Teste Gratuito</UiButton>
               </router-link>
+              <UiButton variant="legal-outline">Ver Demonstração</UiButton>
+            </div>
+            
+            <div class="pt-8 flex items-center gap-4 text-sm text-slate-500">
+              <div class="flex -space-x-2">
+                <div v-for="i in 4" :key="i" class="w-8 h-8 rounded-full bg-slate-700 border-2 border-[#0F172A] flex items-center justify-center text-xs">
+                   ⚖️
+                </div>
+              </div>
+              <p>+500 Escritórios potencializados</p>
             </div>
           </div>
 
@@ -90,11 +104,54 @@ import { Scale, ChevronRight, ShieldCheck, Clock } from 'lucide-vue-next';
                   </div>
                   <div class="bg-red-500/20 text-red-300 px-3 py-1 rounded-full text-xs animate-pulse">Atenção</div>
                 </div>
+
+                <div class="h-32 bg-slate-900/60 rounded border border-slate-700/50 flex items-end p-4 gap-2">
+                  <div v-for="(h, i) in [40, 70, 45, 90, 60, 80, 55]" :key="i" class="flex-1 bg-gradient-to-t from-[#C5A059] to-[#C5A059]/20 rounded-t opacity-80 hover:opacity-100 transition-opacity" :style="{height: `${h}%`}"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
+    <section class="py-24 bg-[#0B1120]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl lg:text-4xl font-serif text-white mb-4">Tecnologia que impõe respeito</h2>
+          <p class="text-slate-400">Funcionalidades desenhadas para a rotina da advocacia de elite.</p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-8">
+          <div class="p-8 bg-slate-800/30 border border-slate-800 hover:border-[#C5A059]/50 transition-colors group">
+            <Gavel class="w-10 h-10 text-[#C5A059] mb-6 group-hover:scale-110 transition-transform" />
+            <h3 class="text-xl font-serif text-white mb-3">Intimações Automáticas</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Nosso robô monitora 100% dos diários oficiais. Receba alertas antes mesmo da publicação oficial.
+            </p>
+          </div>
+          
+          <div class="p-8 bg-slate-800/30 border border-slate-800 hover:border-[#C5A059]/50 transition-colors group">
+            <FileText class="w-10 h-10 text-[#C5A059] mb-6 group-hover:scale-110 transition-transform" />
+            <h3 class="text-xl font-serif text-white mb-3">Gestão Documental</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              OCR inteligente que lê seus PDFs e organiza as pastas automaticamente por cliente e instância.
+            </p>
+          </div>
+
+          <div class="p-8 bg-slate-800/30 border border-slate-800 hover:border-[#C5A059]/50 transition-colors group">
+            <Scale class="w-10 h-10 text-[#C5A059] mb-6 group-hover:scale-110 transition-transform" />
+            <h3 class="text-xl font-serif text-white mb-3">Financeiro Integrado</h3>
+            <p class="text-slate-400 text-sm leading-relaxed">
+              Controle de honorários, sucumbência e emissão de boletos em um clique. O fim da inadimplência.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <footer class="py-12 border-t border-slate-800 text-center text-slate-500 text-sm">
+      <p>© 2025 LexFlow Tecnologias Jurídicas. Todos os direitos reservados.</p>
+    </footer>
   </div>
 </template>
