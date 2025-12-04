@@ -12,14 +12,12 @@ const handleLogout = () => {
   router.push('/login');
 };
 
-// Definição do Menu (Lego: Adicione novos módulos aqui)
 const menuItems = [
   { label: 'Visão Geral', path: '/dashboard', icon: '📊' },
   { label: 'Meus Clientes', path: '/clients', icon: '👥' },
   { label: 'Financeiro', path: '/finance', icon: '💰' },
 ];
 
-// Título dinâmico baseado na rota
 const pageTitle = computed(() => {
   switch (route.name) {
     case 'dashboard': return 'Visão Geral';
@@ -31,207 +29,56 @@ const pageTitle = computed(() => {
 </script>
 
 <template>
-  <div class="app-layout">
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <div class="logo-box">
-          <span class="logo-icon">🚀</span>
-          <span class="logo-text">SaaS Mestre</span>
-        </div>
+  <div class="flex h-screen bg-secondary/20">
+    <aside class="w-64 bg-primary text-primary-foreground flex flex-col shadow-2xl z-20">
+      <div class="h-20 flex items-center px-6 border-b border-white/10">
+        <span class="text-xl font-bold flex items-center gap-2 tracking-tight">
+          <span>🚀</span> SaaS Mestre
+        </span>
       </div>
 
-      <nav class="sidebar-nav">
+      <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
         <router-link 
           v-for="item in menuItems" 
           :key="item.path" 
           :to="item.path"
-          class="nav-item"
-          :class="{ active: route.path === item.path }"
+          class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary-foreground/70 hover:bg-white/10 hover:text-white transition-all font-medium"
+          :class="{ '!bg-accent !text-accent-foreground shadow-md': route.path === item.path }"
         >
-          <span class="icon">{{ item.icon }}</span>
-          <span class="label">{{ item.label }}</span>
+          <span>{{ item.icon }}</span>
+          <span>{{ item.label }}</span>
         </router-link>
       </nav>
 
-      <div class="sidebar-footer">
-        <div class="user-mini-profile">
-          <div class="avatar">{{ authStore.user?.full_name?.substring(0,2).toUpperCase() || 'US' }}</div>
-          <div class="info">
-            <span class="name">{{ authStore.user?.full_name || 'Usuário' }}</span>
-            <span class="role">Admin</span>
+      <div class="p-4 border-t border-white/10 bg-black/20">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-md bg-accent flex items-center justify-center font-bold text-xs">
+              {{ authStore.user?.full_name?.substring(0,2).toUpperCase() || 'AD' }}
+            </div>
+            <div class="text-sm">
+              <p class="font-bold leading-none">{{ authStore.user?.full_name || 'Admin' }}</p>
+              <p class="text-xs opacity-60">Online</p>
+            </div>
           </div>
+          <button @click="handleLogout" class="text-white/60 hover:text-red-400 transition-colors" title="Sair">
+            🚪
+          </button>
         </div>
-        <button @click="handleLogout" class="logout-btn" title="Sair">
-          🚪
-        </button>
       </div>
     </aside>
 
-    <div class="main-wrapper">
-      <header class="topbar">
-        <h2 class="page-title">{{ pageTitle }}</h2>
-        <div class="topbar-actions">
-          <span class="notification-badge">🔔</span>
+    <div class="flex-1 flex flex-col overflow-hidden">
+      <header class="h-20 bg-background border-b border-border flex items-center justify-between px-8 shadow-sm z-10">
+        <h2 class="text-xl font-bold text-foreground">{{ pageTitle }}</h2>
+        <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center cursor-pointer hover:bg-secondary/80">
+          🔔
         </div>
       </header>
 
-      <main class="content-area">
+      <main class="flex-1 overflow-y-auto p-8">
         <slot></slot>
       </main>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.app-layout {
-  display: flex;
-  height: 100vh;
-  background-color: $bg-app;
-  color: $text-main;
-  font-family: $font-family;
-}
-
-// --- SIDEBAR ---
-.sidebar {
-  width: $sidebar-width;
-  background-color: $primary-color;
-  color: $text-inverse;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-  box-shadow: 4px 0 24px rgba(0,0,0,0.1); // Sombra para profundidade
-  z-index: 10;
-
-  .sidebar-header {
-    height: $header-height;
-    display: flex;
-    align-items: center;
-    padding: 0 1.5rem;
-    border-bottom: 1px solid rgba(255,255,255,0.05);
-    
-    .logo-box {
-      font-size: 1.25rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      display: flex;
-      gap: 0.5rem;
-    }
-  }
-
-  .sidebar-nav {
-    flex: 1;
-    padding: 1.5rem 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
-    border-radius: $radius-md;
-    color: rgba(255,255,255,0.6);
-    text-decoration: none;
-    transition: all 0.2s;
-    font-weight: 500;
-
-    &:hover {
-      background-color: rgba(255,255,255,0.05);
-      color: $text-inverse;
-    }
-
-    &.active {
-      background-color: $accent-color;
-      color: white;
-      box-shadow: $shadow-md;
-    }
-  }
-
-  .sidebar-footer {
-    padding: 1rem;
-    border-top: 1px solid rgba(255,255,255,0.05);
-    background-color: rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    .user-mini-profile {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      
-      .avatar {
-        width: 32px;
-        height: 32px;
-        background: $accent-color;
-        border-radius: $radius-md;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.8rem;
-        font-weight: bold;
-      }
-      
-      .info {
-        display: flex;
-        flex-direction: column;
-        .name { font-size: 0.85rem; font-weight: 600; max-width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .role { font-size: 0.7rem; color: rgba(255,255,255,0.5); }
-      }
-    }
-
-    .logout-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1.2rem;
-      padding: 0.5rem;
-      border-radius: $radius-md;
-      transition: background 0.2s;
-      
-      &:hover { background-color: rgba(255,0,0,0.2); }
-    }
-  }
-}
-
-// --- MAIN AREA ---
-.main-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.topbar {
-  height: $header-height;
-  background-color: $bg-surface;
-  border-bottom: 1px solid $border-color;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 2rem;
-  
-  .page-title {
-    font-size: 1.25rem;
-    font-weight: 700;
-    color: $primary-color;
-  }
-  
-  .notification-badge {
-    cursor: pointer;
-    font-size: 1.2rem;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-    &:hover { opacity: 1; }
-  }
-}
-
-.content-area {
-  flex: 1;
-  overflow-y: auto;
-  padding: 2rem;
-}
-</style>

@@ -8,66 +8,22 @@ defineEmits(['close']);
 </script>
 
 <template>
-  <div v-if="isOpen" class="modal-overlay" @click.self="$emit('close')">
-    <div class="modal-content">
-      <header>
-        <h3>{{ title }}</h3>
-        <button class="close-btn" @click="$emit('close')">&times;</button>
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" @click.self="$emit('close')">
+    <div class="w-full max-w-lg bg-background rounded-xl shadow-2xl border border-border animate-in fade-in zoom-in duration-200">
+      
+      <header class="flex items-center justify-between px-6 py-4 border-b border-border">
+        <h3 class="text-lg font-bold text-foreground">{{ title }}</h3>
+        <button 
+          class="text-muted-foreground hover:text-red-500 transition-colors text-2xl leading-none" 
+          @click="$emit('close')"
+        >
+          &times;
+        </button>
       </header>
       
-      <div class="modal-body">
-        <slot></slot> </div>
+      <div class="p-6">
+        <slot></slot>
+      </div>
     </div>
   </div>
 </template>
-
-<style lang="scss" scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  background: white;
-  width: 100%;
-  max-width: 500px;
-  border-radius: $border-radius;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-  animation: fadeIn 0.2s ease-out;
-
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
-    
-    h3 { margin: 0; color: $primary-color; }
-    
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: $secondary-color;
-    }
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-  }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>

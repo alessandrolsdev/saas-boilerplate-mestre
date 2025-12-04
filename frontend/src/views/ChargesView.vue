@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
-import MainLayout from '@/layouts/MainLayout.vue'; // <--- Importando a Moldura
+import MainLayout from '@/layouts/MainLayout.vue';
 import chargeService from '@/services/charges';
 import clientService from '@/services/clients';
 import BaseModal from '@/components/BaseModal.vue';
@@ -35,108 +35,100 @@ const handleSubmit = async () => {
 
 const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 const formatDate = (date) => new Date(date).toLocaleDateString('pt-BR');
-const getStatusColor = (status) => ({ PENDING: '#f59e0b', PAID: '#10b981', OVERDUE: '#ef4444', CANCELED: '#94a3b8' }[status] || '#cbd5e1');
-const getStatusLabel = (status) => ({ PENDING: 'Pendente', PAID: 'Pago', OVERDUE: 'Atrasado', CANCELED: 'Cancelado' }[status] || status);
+
+// Mapa de cores para Tailwind (classes)
+const statusClasses = {
+  PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  PAID: 'bg-green-100 text-green-700 border-green-200',
+  OVERDUE: 'bg-red-100 text-red-700 border-red-200',
+  CANCELED: 'bg-slate-100 text-slate-700 border-slate-200'
+};
 
 onMounted(loadData);
 </script>
 
 <template>
   <MainLayout>
-    <div class="page-content">
-      <header class="content-header">
-        <div class="header-text">
-          <h3>Lançamentos</h3>
-          <p>Controle de entradas e cobranças</p>
+    <div class="space-y-6">
+      <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h3 class="text-2xl font-bold text-foreground">Lançamentos</h3>
+          <p class="text-muted-foreground">Controle financeiro e cobranças</p>
         </div>
-        <button class="btn-primary" @click="isModalOpen = true">
+        <button 
+          class="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm" 
+          @click="isModalOpen = true"
+        >
           + Nova Cobrança
         </button>
       </header>
 
-      <div class="table-card">
-        <table>
-          <thead>
-            <tr>
-              <th>Descrição</th>
-              <th>Vencimento</th>
-              <th>Valor</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="charge in charges" :key="charge.id">
-              <td>
-                <span class="desc-text">{{ charge.description }}</span>
-                <span class="client-sub">Cliente ID: #{{ charge.client_id }}</span>
-              </td>
-              <td>{{ formatDate(charge.due_date) }}</td>
-              <td class="font-mono">{{ formatCurrency(charge.value) }}</td>
-              <td>
-                <span class="status-badge" :style="{ backgroundColor: getStatusColor(charge.status) }">
-                  {{ getStatusLabel(charge.status) }}
-                </span>
-              </td>
-            </tr>
-            <tr v-if="charges.length === 0">
-              <td colspan="4" class="empty-state">
-                <span class="icon">💰</span>
-                <p>Nenhum lançamento registrado.</p>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="bg-background border border-border rounded-xl shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-secondary/50 text-muted-foreground border-b border-border">
+              <tr>
+                <th class="px-6 py-4 font-semibold">Descrição</th>
+                <th class="px-6 py-4 font-semibold">Vencimento</th>
+                <th class="px-6 py-4 font-semibold">Valor</th>
+                <th class="px-6 py-4 font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-border">
+              <tr v-for="charge in charges" :key="charge.id" class="hover:bg-secondary/20 transition-colors">
+                <td class="px-6 py-4">
+                  <div class="flex flex-col">
+                    <span class="font-medium text-foreground">{{ charge.description }}</span>
+                    <span class="text-xs text-muted-foreground">Cliente #{{ charge.client_id }}</span>
+                  </div>
+                </td>
+                <td class="px-6 py-4">{{ formatDate(charge.due_date) }}</td>
+                <td class="px-6 py-4 font-mono font-medium">{{ formatCurrency(charge.value) }}</td>
+                <td class="px-6 py-4">
+                  <span :class="`px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusClasses[charge.status] || 'bg-gray-100'}`">
+                    {{ charge.status }}
+                  </span>
+                </td>
+              </tr>
+              <tr v-if="charges.length === 0">
+                <td colspan="4" class="px-6 py-12 text-center text-muted-foreground">
+                  <span class="text-4xl block mb-2 opacity-50">💰</span>
+                  Nenhum lançamento registrado.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <BaseModal :isOpen="isModalOpen" title="Nova Cobrança" @close="isModalOpen = false">
-        <form @submit.prevent="handleSubmit" class="standard-form">
-          <div class="form-group">
-            <label>Cliente</label>
-            <select v-model="form.client_id" required>
+        <form @submit.prevent="handleSubmit" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">Cliente</label>
+            <select v-model="form.client_id" required class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none">
               <option value="" disabled>Selecione...</option>
               <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.full_name }}</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Descrição</label>
-            <input v-model="form.description" required placeholder="Ex: Honorários Mensais" />
+          <div>
+            <label class="block text-sm font-medium mb-1">Descrição</label>
+            <input v-model="form.description" required placeholder="Ex: Honorários Mensais" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
           </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label>Valor (R$)</label>
-              <input type="number" step="0.01" v-model="form.value" required placeholder="0,00" />
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium mb-1">Valor (R$)</label>
+              <input type="number" step="0.01" v-model="form.value" required placeholder="0,00" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
             </div>
-            <div class="form-group">
-              <label>Vencimento</label>
-              <input type="date" v-model="form.due_date" required />
+            <div>
+              <label class="block text-sm font-medium mb-1">Vencimento</label>
+              <input type="date" v-model="form.due_date" required class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
             </div>
           </div>
-          <button type="submit" class="btn-block" :disabled="isLoading">
-            {{ isLoading ? 'Lançar' : 'Confirmar' }}
+          <button type="submit" :disabled="isLoading" class="w-full py-2.5 bg-accent text-accent-foreground font-bold rounded-lg hover:opacity-90 transition-opacity mt-2">
+            {{ isLoading ? 'Lançando...' : 'Confirmar Lançamento' }}
           </button>
         </form>
       </BaseModal>
     </div>
   </MainLayout>
 </template>
-
-<style lang="scss" scoped>
-// Reutiliza estilos base (Idealmente estariam em components separados, mas aqui repetimos por agilidade)
-.page-content { display: flex; flex-direction: column; gap: 1.5rem; }
-.content-header { display: flex; justify-content: space-between; align-items: center; h3 { font-size: 1.1rem; color: $text-main; margin-bottom: 0.25rem; } p { font-size: 0.9rem; color: $text-muted; } }
-.btn-primary { background: $primary-color; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: $radius-md; cursor: pointer; font-weight: 500; transition: background 0.2s; &:hover { background: $primary-hover; } }
-.table-card { background: $bg-surface; border-radius: $radius-lg; border: 1px solid $border-color; box-shadow: $shadow-sm; overflow: hidden; table { width: 100%; border-collapse: collapse; th { background: $bg-app; padding: 1rem; text-align: left; font-size: 0.8rem; text-transform: uppercase; color: $text-muted; font-weight: 600; } td { padding: 1rem; border-top: 1px solid $border-color; color: $text-main; font-size: 0.95rem; } } }
-.empty-state { text-align: center; padding: 3rem; color: $text-muted; .icon { font-size: 2rem; display: block; margin-bottom: 0.5rem; opacity: 0.5; } }
-.font-mono { font-family: monospace; letter-spacing: -0.5px; font-weight: 600; }
-.desc-text { display: block; font-weight: 500; }
-.client-sub { display: block; font-size: 0.75rem; color: $text-muted; margin-top: 2px; }
-.status-badge { padding: 0.2rem 0.6rem; border-radius: 99px; color: white; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-
-.standard-form {
-  .form-group { margin-bottom: 1rem; }
-  .form-row { display: flex; gap: 1rem; .form-group { flex: 1; } }
-  label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 500; color: $text-main; }
-  input, select { width: 100%; padding: 0.6rem; border: 1px solid $border-color; border-radius: $radius-md; outline: none; &:focus { border-color: $accent-color; } }
-  .btn-block { width: 100%; padding: 0.75rem; background: $accent-color; color: white; border: none; border-radius: $radius-md; cursor: pointer; margin-top: 0.5rem; &:hover { background: $accent-hover; } }
-}
-</style>

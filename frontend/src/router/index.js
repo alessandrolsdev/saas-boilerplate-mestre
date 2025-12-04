@@ -1,9 +1,30 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
+import LandingView from '../views/LandingView.vue' // <--- Importe a Landing
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // Rota Raiz (Genérica)
+    {
+      path: '/',
+      name: 'home',
+      component: LandingView
+    },
+    // Rota Advogado (Mesmo componente, mas avisa que é niche='advogado')
+    {
+      path: '/advogado',
+      name: 'landing-advogado',
+      component: LandingView,
+      meta: { niche: 'advogado' } 
+    },
+    // Rota Terraplanagem
+    {
+      path: '/terraplanagem',
+      name: 'landing-terraplanagem',
+      component: LandingView,
+      meta: { niche: 'terraplanagem' }
+    },
     {
       path: '/login',
       name: 'login',
@@ -12,13 +33,8 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      // Lazy loading: carrega apenas quando o usuário acessa
-      component: () => import('../views/DashboardView.vue'), // Por enquanto usamos o App.vue como dashboard temporário
+      component: () => import('../views/DashboardView.vue'),
       meta: { requiresAuth: true }
-    },
-    {
-      path: '/',
-      redirect: '/dashboard'
     },
     {
       path: '/clients',
@@ -35,10 +51,11 @@ const router = createRouter({
   ]
 })
 
-// Navigation Guard (Proteção de Rotas)
+// Navigation Guard (Mantém a proteção nas rotas privadas)
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
-
+  
+  // Se a rota exige auth e não tem token, manda pro login
   if (to.meta.requiresAuth && !token) {
     next('/login');
   } else {

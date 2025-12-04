@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia' // Importando Pinia
-import './assets/styles/main.scss' // Seu SASS global
+import './assets/style.css' // Adicione isso
 import App from './App.vue'
 import router from './router' // Vamos configurar já já
 

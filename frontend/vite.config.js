@@ -10,13 +10,5 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        // ESSA LINHA É A MÁGICA:
-        // Ela injeta as variáveis automaticamente em todo arquivo .vue
-        additionalData: `@use "@/assets/styles/_variables.scss" as *;`
-      }
-    }
-  }
+  // REMOVEMOS O BLOCO 'css' QUE INJETAVA O SASS ANTIGO
 })

@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Tema Default (Light) */
+    --background: #ffffff;
+    --foreground: #0f172a; 
+    
+    --primary: #0f172a;
+    --primary-foreground: #ffffff;
+    
+    --secondary: #f1f5f9;
+    --secondary-foreground: #0f172a;
+    
+    --accent: #3b82f6;
+    --accent-foreground: #ffffff;
+    
+    --muted: #64748b;
+    --muted-foreground: #ffffff;
+    
+    --border: #e2e8f0;
+  }
+
+  body {
+    /* MUDANÇA AQUI: Usamos CSS nativo para as cores base para evitar erro de build */
+    background-color: var(--background);
+    color: var(--foreground);
+    /* O @apply continua apenas para utilitários padrão */
+    @apply antialiased;
+  }
+}
+
+/* Utilitários Customizados */
+.industrial-tape {
+  background: repeating-linear-gradient(
+    45deg,
+    #EAB308,
+    #EAB308 20px,
+    #000 20px,
+    #000 40px
+  );
+}
