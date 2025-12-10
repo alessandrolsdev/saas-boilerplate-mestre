@@ -1,3 +1,9 @@
+"""
+Arquivo Principal da Aplicação (Entrypoint).
+
+Este arquivo configura e inicializa a aplicação FastAPI, incluindo middlewares (CORS),
+rotas e eventos de ciclo de vida (startup/shutdown).
+"""
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -5,20 +11,25 @@ from app.core.config import settings
 from app.db.session import engine
 from app.db.base_class import Base
 
-# Imports dos Models
+# Imports dos Models para garantir que sejam registrados no SQLAlchemy
 from app.models.user import User
 from app.models.client import Client
 from app.models.charge import Charge
 
-# Import do Scheduler
+# Import do Scheduler para automações
 from app.automations.scheduler import start_scheduler, shutdown_scheduler
 
-# Cria as tabelas
+# Cria as tabelas no banco de dados se não existirem
 Base.metadata.create_all(bind=engine)
 
 # --- CICLO DE VIDA (LIFESPAN) ---
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    """
+    Gerenciador de contexto para o ciclo de vida da aplicação.
+    
+    Executa ações na inicialização (startup) e no encerramento (shutdown) da API.
+    """
     # Ocorre ao iniciar (Startup)
     start_scheduler()
     yield
@@ -28,6 +39,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title=settings.PROJECT_NAME, lifespan=lifespan)
 
 # --- CORS ---
+# Configuração de Cross-Origin Resource Sharing para permitir requisições do frontend
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
@@ -47,4 +59,7 @@ app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")
 def read_root():
+    """
+    Rota raiz para verificação de saúde da API.
+    """
     return {"message": "Boilerplate Backend Operacional", "status": "active"}

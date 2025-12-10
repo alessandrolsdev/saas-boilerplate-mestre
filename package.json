@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "axios": "^1.13.2",
+    "pinia": "^3.0.4",
+    "vue-router": "^4.6.3"
+  },
+  "devDependencies": {
+    "lucide-vue-next": "^0.555.0",
+    "sass": "^1.94.2",
+    "vite-plugin-pwa": "^1.2.0"
+  }
+}

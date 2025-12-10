@@ -1,25 +1,40 @@
+"""
+Schemas de Usuário.
+
+Define os modelos Pydantic para validação e serialização de dados de usuários.
+"""
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
-# Base para atributos compartilhados
 class UserBase(BaseModel):
+    """
+    Base para atributos compartilhados de Usuário.
+    """
     email: EmailStr
     full_name: Optional[str] = None
     is_active: Optional[bool] = True
 
-# O que precisamos para criar um usuario (vem do Front)
 class UserCreate(UserBase):
+    """
+    Schema para criação de usuário (Sign Up).
+    A senha é obrigatória neste estágio.
+    """
     password: str
 
-# O que devolvemos para o Front (NUNCA devolva a senha)
 class User(UserBase):
+    """
+    Schema para resposta de dados de usuário.
+    NUNCA deve conter a senha.
+    """
     id: int
     is_superuser: bool
 
     class Config:
         from_attributes = True
 
-# Schema para o Token JWT
 class Token(BaseModel):
+    """
+    Schema para o Token JWT.
+    """
     access_token: str
     token_type: str

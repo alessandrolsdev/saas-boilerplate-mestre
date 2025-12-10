@@ -1,4 +1,11 @@
 <script setup>
+/**
+ * View ClientsView.
+ * 
+ * Tela de gerenciamento de clientes. Permite listar e cadastrar novos clientes.
+ * 
+ * @component
+ */
 import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import clientService from '@/services/clients';
@@ -9,6 +16,9 @@ const isModalOpen = ref(false);
 const isLoading = ref(false);
 const form = ref({ full_name: '', email: '', phone: '', document: '', notes: '' });
 
+/**
+ * Busca a lista de clientes da API.
+ */
 const fetchClients = async () => {
   try {
     clients.value = await clientService.getAll();
@@ -17,6 +27,9 @@ const fetchClients = async () => {
   }
 };
 
+/**
+ * Envia o formulário de cadastro de cliente.
+ */
 const handleSubmit = async () => {
   isLoading.value = true;
   try {
@@ -37,16 +50,15 @@ onMounted(fetchClients);
 <template>
   <MainLayout>
     <div class="space-y-6">
-      
+
       <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h3 class="text-2xl font-bold text-foreground">Base de Contatos</h3>
           <p class="text-muted-foreground">Gerencie seus clientes e leads</p>
         </div>
-        <button 
-          class="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm" 
-          @click="isModalOpen = true"
-        >
+        <button
+          class="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm"
+          @click="isModalOpen = true">
           + Novo Cliente
         </button>
       </header>
@@ -66,7 +78,8 @@ onMounted(fetchClients);
               <tr v-for="client in clients" :key="client.id" class="hover:bg-secondary/20 transition-colors">
                 <td class="px-6 py-4">
                   <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold">
+                    <div
+                      class="w-8 h-8 rounded-full bg-accent/10 text-accent flex items-center justify-center font-bold">
                       {{ client.full_name.charAt(0) }}
                     </div>
                     <span class="font-medium text-foreground">{{ client.full_name }}</span>
@@ -80,7 +93,8 @@ onMounted(fetchClients);
                 </td>
                 <td class="px-6 py-4 text-muted-foreground">{{ client.document || '-' }}</td>
                 <td class="px-6 py-4 text-right">
-                  <button class="text-muted-foreground hover:text-accent transition-colors">✏️</button>
+                  <button class="text-muted-foreground hover:text-accent transition-colors"
+                    aria-label="Editar cliente">✏️</button>
                 </td>
               </tr>
               <tr v-if="clients.length === 0">
@@ -98,26 +112,31 @@ onMounted(fetchClients);
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-sm font-medium mb-1">Nome Completo</label>
-            <input v-model="form.full_name" required placeholder="Ex: João Silva" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+            <input v-model="form.full_name" required placeholder="Ex: João Silva"
+              class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
           </div>
-          
+
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-1">Email</label>
-              <input type="email" v-model="form.email" placeholder="email@cliente.com" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+              <input type="email" v-model="form.email" placeholder="email@cliente.com"
+                class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">WhatsApp</label>
-              <input v-model="form.phone" required placeholder="(11) 99999-9999" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+              <input v-model="form.phone" required placeholder="(11) 99999-9999"
+                class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
             </div>
           </div>
 
           <div>
             <label class="block text-sm font-medium mb-1">CPF/CNPJ</label>
-            <input v-model="form.document" placeholder="000.000.000-00" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+            <input v-model="form.document" placeholder="000.000.000-00"
+              class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
           </div>
 
-          <button type="submit" :disabled="isLoading" class="w-full py-2.5 bg-accent text-accent-foreground font-bold rounded-lg hover:opacity-90 transition-opacity mt-2">
+          <button type="submit" :disabled="isLoading"
+            class="w-full py-2.5 bg-accent text-accent-foreground font-bold rounded-lg hover:opacity-90 transition-opacity mt-2">
             {{ isLoading ? 'Salvando...' : 'Cadastrar Cliente' }}
           </button>
         </form>

@@ -1,4 +1,12 @@
 <script setup>
+/**
+ * View ChargesView.
+ * 
+ * Tela de gerenciamento de cobranças. Permite listar, filtrar e criar novas cobranças.
+ * Integra com a API de cobranças e clientes.
+ * 
+ * @component
+ */
 import { ref, onMounted } from 'vue';
 import MainLayout from '@/layouts/MainLayout.vue';
 import chargeService from '@/services/charges';
@@ -11,6 +19,9 @@ const isModalOpen = ref(false);
 const isLoading = ref(false);
 const form = ref({ description: '', value: '', due_date: '', client_id: '' });
 
+/**
+ * Carrega os dados iniciais (cobranças e clientes).
+ */
 const loadData = async () => {
   try {
     const [chargesData, clientsData] = await Promise.all([
@@ -22,6 +33,9 @@ const loadData = async () => {
   } catch (error) { console.error(error); }
 };
 
+/**
+ * Envia o formulário de criação de cobrança.
+ */
 const handleSubmit = async () => {
   isLoading.value = true;
   try {
@@ -36,7 +50,7 @@ const handleSubmit = async () => {
 const formatCurrency = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 const formatDate = (date) => new Date(date).toLocaleDateString('pt-BR');
 
-// Mapa de cores para Tailwind (classes)
+// Mapa de cores para Tailwind (classes) baseado no status da cobrança
 const statusClasses = {
   PENDING: 'bg-yellow-100 text-yellow-700 border-yellow-200',
   PAID: 'bg-green-100 text-green-700 border-green-200',
@@ -55,10 +69,9 @@ onMounted(loadData);
           <h3 class="text-2xl font-bold text-foreground">Lançamentos</h3>
           <p class="text-muted-foreground">Controle financeiro e cobranças</p>
         </div>
-        <button 
-          class="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm" 
-          @click="isModalOpen = true"
-        >
+        <button
+          class="px-4 py-2 bg-primary text-primary-foreground rounded-lg font-medium hover:opacity-90 transition-opacity shadow-sm"
+          @click="isModalOpen = true">
           + Nova Cobrança
         </button>
       </header>
@@ -85,7 +98,8 @@ onMounted(loadData);
                 <td class="px-6 py-4">{{ formatDate(charge.due_date) }}</td>
                 <td class="px-6 py-4 font-mono font-medium">{{ formatCurrency(charge.value) }}</td>
                 <td class="px-6 py-4">
-                  <span :class="`px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusClasses[charge.status] || 'bg-gray-100'}`">
+                  <span
+                    :class="`px-2.5 py-0.5 rounded-full text-xs font-bold border ${statusClasses[charge.status] || 'bg-gray-100'}`">
                     {{ charge.status }}
                   </span>
                 </td>
@@ -105,26 +119,31 @@ onMounted(loadData);
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
             <label class="block text-sm font-medium mb-1">Cliente</label>
-            <select v-model="form.client_id" required class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none">
+            <select v-model="form.client_id" required
+              class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none">
               <option value="" disabled>Selecione...</option>
               <option v-for="client in clients" :key="client.id" :value="client.id">{{ client.full_name }}</option>
             </select>
           </div>
           <div>
             <label class="block text-sm font-medium mb-1">Descrição</label>
-            <input v-model="form.description" required placeholder="Ex: Honorários Mensais" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+            <input v-model="form.description" required placeholder="Ex: Honorários Mensais"
+              class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium mb-1">Valor (R$)</label>
-              <input type="number" step="0.01" v-model="form.value" required placeholder="0,00" class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+              <input type="number" step="0.01" v-model="form.value" required placeholder="0,00"
+                class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
             </div>
             <div>
               <label class="block text-sm font-medium mb-1">Vencimento</label>
-              <input type="date" v-model="form.due_date" required class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
+              <input type="date" v-model="form.due_date" required
+                class="w-full px-3 py-2 border border-border rounded-lg bg-background focus:ring-2 focus:ring-accent outline-none" />
             </div>
           </div>
-          <button type="submit" :disabled="isLoading" class="w-full py-2.5 bg-accent text-accent-foreground font-bold rounded-lg hover:opacity-90 transition-opacity mt-2">
+          <button type="submit" :disabled="isLoading"
+            class="w-full py-2.5 bg-accent text-accent-foreground font-bold rounded-lg hover:opacity-90 transition-opacity mt-2">
             {{ isLoading ? 'Lançando...' : 'Confirmar Lançamento' }}
           </button>
         </form>

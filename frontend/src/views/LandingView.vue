@@ -1,4 +1,12 @@
 <script setup>
+/**
+ * View LandingView.
+ * 
+ * Controla a renderização da Landing Page apropriada com base na rota ou nicho.
+ * Suporta temas dinâmicos (Dark, Industrial, Master) e injeção de variáveis CSS.
+ * 
+ * @component
+ */
 import { computed, watchEffect } from 'vue';
 import { useRoute } from 'vue-router';
 import LandingLayout from '@/layouts/LandingLayout.vue';
@@ -16,12 +24,12 @@ const content = computed(() => niches[route.meta.niche || 'default'] || niches.d
 const currentComponent = computed(() => {
   if (route.path === '/advogado') return LegalLP;
   if (route.path === '/terraplanagem') return ConstructionLP;
-  
+
   // Se não for nicho específico, assume Master (Home do Dev)
   if (content.value.style.mode === 'master') return MasterHome;
-  
+
   // Fallback (caso você crie um nicho novo sem componente dedicado, usa esse template genérico abaixo)
-  return null; 
+  return null;
 });
 
 const isDark = computed(() => content.value.style.mode === 'dark');
@@ -30,14 +38,14 @@ const isIndustrial = computed(() => content.value.style.mode === 'industrial');
 watchEffect(() => {
   const root = document.documentElement;
   const colors = content.value.style.colors || {};
-  
+
   // Injeta variáveis CSS
   for (const [key, value] of Object.entries(colors)) {
     root.style.setProperty(key, value);
   }
-  
-  root.style.fontFamily = content.value.style.font === 'serif' 
-    ? '"Playfair Display", serif' 
+
+  root.style.fontFamily = content.value.style.font === 'serif'
+    ? '"Playfair Display", serif'
     : '"Inter", sans-serif';
 });
 </script>
@@ -62,15 +70,15 @@ watchEffect(() => {
             <a href="#features" class="btn-secondary">Saber mais</a>
           </div>
         </div>
-        
+
         <div class="visual-area">
           <div v-if="content.hero.image" class="image-wrapper">
-             <div v-if="isIndustrial" class="industrial-border"></div>
-             <img :src="content.hero.image" alt="Visual" class="niche-image" />
-             <div v-if="isIndustrial" class="data-card">
-               <div class="status"><span class="dot"></span> EM OPERAÇÃO</div>
-               <div class="metric">12,450h</div>
-             </div>
+            <div v-if="isIndustrial" class="industrial-border"></div>
+            <img :src="content.hero.image" alt="Visual" class="niche-image" />
+            <div v-if="isIndustrial" class="data-card">
+              <div class="status"><span class="dot"></span> EM OPERAÇÃO</div>
+              <div class="metric">12,450h</div>
+            </div>
           </div>
           <div v-else class="mockup-card glass-effect">
             <div class="mockup-header">
@@ -80,10 +88,16 @@ watchEffect(() => {
             <div class="mockup-body">
               <div class="stat-row">
                 <div class="stat-icon">⚖️</div>
-                <div class="stat-info"><div class="val">1.248</div><div class="lbl">Processos Ativos</div></div>
+                <div class="stat-info">
+                  <div class="val">1.248</div>
+                  <div class="lbl">Processos Ativos</div>
+                </div>
               </div>
               <div class="graph-placeholder">
-                <div class="bar" style="height:40%"></div><div class="bar" style="height:70%"></div><div class="bar" style="height:50%"></div><div class="bar" style="height:90%"></div>
+                <div class="bar" style="height:40%"></div>
+                <div class="bar" style="height:70%"></div>
+                <div class="bar" style="height:50%"></div>
+                <div class="bar" style="height:90%"></div>
               </div>
             </div>
           </div>
@@ -110,8 +124,19 @@ watchEffect(() => {
 
 <style lang="scss" scoped>
 // Mantenha os estilos existentes do template genérico aqui
-.container { max-width: 1200px; margin: 0 auto; padding: 0 1.5rem; position: relative; z-index: 10; }
-.hero { padding: 8rem 0 6rem; position: relative; overflow: hidden; }
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 10;
+}
+
+.hero {
+  padding: 8rem 0 6rem;
+  position: relative;
+  overflow: hidden;
+}
+
 // ... (Copie o resto do CSS do LandingView anterior se for usar o modo genérico)
-// Se você só vai usar Master/Legal/Construction, esse CSS é opcional.
-</style>
+// Se você só vai usar Master/Legal/Construction, esse CSS é opcional.</style>

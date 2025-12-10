@@ -3,13 +3,19 @@ __pycache__/
 *.py[cod]
 backend/venv/
 backend/.env
+*.sqlite3
+*.db
 
 # Node/Frontend
 frontend/node_modules/
 frontend/dist/
 frontend/.env
+frontend/.env.local
+node_modules/
+dist/
 
 # IDE/OS
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db

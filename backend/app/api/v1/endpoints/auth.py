@@ -1,5 +1,9 @@
+"""
+Endpoints de Autenticação.
+
+Este módulo contém as rotas para registro de novos usuários e autenticação (Login/OAuth2).
+"""
 from datetime import timedelta
-from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -12,8 +16,8 @@ from app.schemas import user as user_schemas
 
 router = APIRouter()
 
-# Dependência para pegar a sessão do banco
 def get_db():
+    """Dependência para obter uma sessão de banco de dados por requisição."""
     db = SessionLocal()
     try:
         yield db
@@ -26,7 +30,9 @@ def register_user(
     db: Session = Depends(get_db)
 ):
     """
-    Cria um novo usuário (Sign Up)
+    Registra um novo usuário no sistema.
+    
+    Verifica a unicidade do email antes de criar o registro.
     """
     user = crud_user.get_user_by_email(db, email=user_in.email)
     if user:
@@ -43,9 +49,12 @@ def login_access_token(
     form_data: OAuth2PasswordRequestForm = Depends()
 ):
     """
-    Login para obter Token JWT (OAuth2 compatível)
+    Realiza o login e retorna um token de acesso JWT.
+    
+    Valida as credenciais (email/senha) e o status do usuário.
     """
-    user = crud_user.get_user_by_email(db, email=form_data.username) # OAuth2 usa 'username' para email
+    # O OAuth2PasswordRequestForm usa 'username' para receber o email
+    user = crud_user.get_user_by_email(db, email=form_data.username)
     
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(

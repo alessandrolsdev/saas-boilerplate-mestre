@@ -1,4 +1,13 @@
 <script setup>
+/**
+ * Layout MainLayout.
+ * 
+ * Layout principal da aplicação (Dashboard).
+ * Inclui barra lateral (Sidebar) com navegação, cabeçalho com título e perfil do usuário.
+ * Gerencia o logout e exibe o conteúdo principal via slot.
+ * 
+ * @component
+ */
 import { useAuthStore } from '@/stores/auth';
 import { useRouter, useRoute } from 'vue-router';
 import { computed } from 'vue';
@@ -38,13 +47,9 @@ const pageTitle = computed(() => {
       </div>
 
       <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
-        <router-link 
-          v-for="item in menuItems" 
-          :key="item.path" 
-          :to="item.path"
+        <router-link v-for="item in menuItems" :key="item.path" :to="item.path"
           class="flex items-center gap-3 px-4 py-3 rounded-lg text-primary-foreground/70 hover:bg-white/10 hover:text-white transition-all font-medium"
-          :class="{ '!bg-accent !text-accent-foreground shadow-md': route.path === item.path }"
-        >
+          :class="{ '!bg-accent !text-accent-foreground shadow-md': route.path === item.path }">
           <span>{{ item.icon }}</span>
           <span>{{ item.label }}</span>
         </router-link>
@@ -54,7 +59,7 @@ const pageTitle = computed(() => {
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-8 h-8 rounded-md bg-accent flex items-center justify-center font-bold text-xs">
-              {{ authStore.user?.full_name?.substring(0,2).toUpperCase() || 'AD' }}
+              {{ authStore.user?.full_name?.substring(0, 2).toUpperCase() || 'AD' }}
             </div>
             <div class="text-sm">
               <p class="font-bold leading-none">{{ authStore.user?.full_name || 'Admin' }}</p>
@@ -71,7 +76,8 @@ const pageTitle = computed(() => {
     <div class="flex-1 flex flex-col overflow-hidden">
       <header class="h-20 bg-background border-b border-border flex items-center justify-between px-8 shadow-sm z-10">
         <h2 class="text-xl font-bold text-foreground">{{ pageTitle }}</h2>
-        <div class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center cursor-pointer hover:bg-secondary/80">
+        <div
+          class="w-10 h-10 rounded-full bg-secondary flex items-center justify-center cursor-pointer hover:bg-secondary/80">
           🔔
         </div>
       </header>

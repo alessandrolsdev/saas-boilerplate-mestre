@@ -2,6 +2,16 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import LandingView from '../views/LandingView.vue'
 
+// Lazy loading para otimizar o carregamento inicial
+const DashboardMaster = () => import('../views/DashboardMaster.vue')
+
+/**
+ * Configuração do Vue Router.
+ * 
+ * Define as rotas da aplicação, incluindo rotas públicas (Landing Pages, Login)
+ * e rotas protegidas (Dashboard, Clientes, Financeiro).
+ * Utiliza meta fields para controle de acesso e nicho.
+ */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -35,7 +45,7 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('../views/DashboardView.vue'),
+      component: DashboardMaster,
       meta: { requiresAuth: true }
     },
     {
@@ -53,6 +63,12 @@ const router = createRouter({
   ]
 })
 
+/**
+ * Guard de navegação global.
+ * 
+ * Verifica se a rota requer autenticação (`requiresAuth`).
+ * Se o usuário não tiver um token no localStorage, redireciona para o login.
+ */
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token');
   if (to.meta.requiresAuth && !token) {
