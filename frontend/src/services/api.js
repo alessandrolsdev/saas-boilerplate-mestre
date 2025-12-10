@@ -1,25 +1,19 @@
 import axios from 'axios';
 
 /**
- * Configuração do Axios para comunicação com a API.
- * 
- * Define a URL base e configura interceptors para autenticação.
+ * Instância do Axios para comunicação com a API (FastAPI).
  */
 const api = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api/v1', // URL do seu Backend
+    baseURL: 'http://127.0.0.1:8000/api/v1',
 });
 
-/**
- * Interceptor de Requisição.
- * 
- * Adiciona o token JWT (se existir) ao cabeçalho Authorization de todas as requisições.
- */
+// Interceptor para adicionar o Token JWT
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
 });
 
 export default api;
