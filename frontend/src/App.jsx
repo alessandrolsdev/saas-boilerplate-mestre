@@ -6,6 +6,8 @@ import { AnimatePresence } from 'framer-motion'
 import SmoothScroll from './components/layout/SmoothScroll'
 import ScrollProgress from './components/ui/ScrollProgress'
 import { ToastProvider } from './components/ui/Toast'
+import { ThemeProvider } from './components/ui/ThemeToggle'
+import ErrorBoundary from './components/ErrorBoundary'
 
 // Pages & Layouts
 import Login from './pages/Login'
@@ -92,15 +94,19 @@ function AnimatedRoutes() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <ToastProvider>
-        <BrowserRouter>
-          <ScrollProgress />
-          <SmoothScroll />
-          <AnimatedRoutes />
-        </BrowserRouter>
-      </ToastProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <ThemeProvider>
+          <ToastProvider>
+            <BrowserRouter>
+              <ScrollProgress />
+              <SmoothScroll />
+              <AnimatedRoutes />
+            </BrowserRouter>
+          </ToastProvider>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   )
 }
 
