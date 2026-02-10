@@ -1,0 +1,23 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://flexsaas.vercel.app/sitemap.xml
+
+# Disallow admin/dashboard routes from crawling
+User-agent: *
+Disallow: /dashboard
+Disallow: /clients
+Disallow: /finance
+Disallow: /beauty/dashboard
+Disallow: /beauty/appointments
+Disallow: /beauty/services
+Disallow: /beauty/professionals
+Disallow: /gym/dashboard
+Disallow: /gym/members
+Disallow: /gym/check-ins
+Disallow: /gym/plans
+Disallow: /finance-dashboard
+Disallow: /login
+Disallow: /register

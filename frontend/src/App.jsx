@@ -4,6 +4,8 @@ import { AnimatePresence } from 'framer-motion'
 
 // Animation Components
 import SmoothScroll from './components/layout/SmoothScroll'
+import ScrollProgress from './components/ui/ScrollProgress'
+import { ToastProvider } from './components/ui/Toast'
 
 // Pages & Layouts
 import Login from './pages/Login'
@@ -91,10 +93,13 @@ function AnimatedRoutes() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <SmoothScroll />
-        <AnimatedRoutes />
-      </BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
+          <ScrollProgress />
+          <SmoothScroll />
+          <AnimatedRoutes />
+        </BrowserRouter>
+      </ToastProvider>
     </QueryClientProvider>
   )
 }
