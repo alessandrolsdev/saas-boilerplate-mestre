@@ -6,7 +6,8 @@ Cria um usuário administrador padrão e gera um ecossistema simulado de cliente
 """
 import random
 from datetime import datetime, timedelta, timezone
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, engine
+from app.db.base_class import Base
 from app.models.user import User
 from app.models.client import Client
 from app.models.charge import Charge
@@ -30,6 +31,9 @@ def init_db():
     """
     Função principal para inicializar o banco de dados.
     """
+    # Garante que as tabelas existam
+    Base.metadata.create_all(bind=engine)
+    
     db = SessionLocal()
     
     # Data de referência em UTC

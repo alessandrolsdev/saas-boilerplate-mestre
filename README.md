@@ -1,128 +1,146 @@
-# SaaS Mestre Boilerplate 🚀
+# 🚀 Multi-SaaS Boilerplate Premium
 
-> **Acelerador de Desenvolvimento SaaS com Arquitetura Sólida e Design Premium.**
+> **Your All-in-One Solution for Scaling SaaS Businesses**
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Python Version](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/downloads/)
-[![Vue Version](https://img.shields.io/badge/vue-3.x-green)](https://vuejs.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.109%2B-009688)](https://fastapi.tiangolo.com/)
+A production-ready, multi-tenant SaaS boilerplate designed to launch premium vertical SaaS solutions instantly. Built with modern technologies and best practices for scalability, security, and high conversion.
 
-## 📋 Visão Geral
-
-O **SaaS Mestre Boilerplate** é uma fundação robusta e escalável para o desenvolvimento de aplicações SaaS (Software as a Service). Projetado para eliminar o trabalho repetitivo de configuração inicial, ele oferece uma arquitetura moderna, segura e pronta para produção, combinando o poder do **FastAPI** no backend com a reatividade do **Vue 3** no frontend.
-
-Este projeto adota padrões de engenharia de software corporativos, com foco em manutenção, escalabilidade e clareza de código.
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+![React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB)
+![Python](https://img.shields.io/badge/Backend-FastAPI-009688)
+![Database](https://img.shields.io/badge/Database-SQLite%2FPostgres-336791)
 
 ---
 
-## ✨ Funcionalidades Principais
+## 🌟 Key Features
 
-### Backend (Python/FastAPI)
-- **Autenticação Segura**: Implementação completa de OAuth2 com JWT (JSON Web Tokens) e hashing Bcrypt.
-- **Arquitetura Clean**: Separação clara entre API, CRUD, Schemas, Models e Core.
-- **SQLAlchemy ORM**: Abstração de banco de dados robusta com suporte futuro a migrações (Alembic).
-- **Validação de Dados**: Pydantic V2 para garantia de integridade de dados.
-- **Background Tasks**: Scheduler integrado (APScheduler) para tarefas recorrentes.
-- **CORS Configurado**: Configuração de segurança pronta para comunicação frontend-backend.
+### 🏢 Multi-Vertical Architecture
+Single codebase powering multiple specialized SaaS products:
+- **💅 BeautyFlow**: Complete management for Beauty Salons & Spas.
+- **🏋️ GymMaster**: Member & workout management for Gyms and Fitness Centers.
+- **💼 FinanceFlow**: Recurring revenue & client management for B2B SaaS.
+- **⚖️ LexFlow** (Coming Soon): Practice management for Law Firms.
+- **🚜 TerraForce** (Coming Soon): Heavy equipment & construction management.
 
-### Frontend (Vue 3/Vite)
-- **Design System Premium**: UI moderna construída com TailwindCSS.
-- **State Management**: Gerenciamento de estado global com Pinia.
-- **Roteamento Dinâmico**: Vue Router com guardas de navegação (Auth Guards).
-- **Dashboards Interativos**: Integração com ApexCharts para visualização de dados financeiros.
-- **API Client Centralizado**: Serviços modulares com interceptors para injeção automática de tokens.
+### 🎨 Premium "Top 1 Global" Design
+- **Ultra-Modern UI/UX**: Distinct aesthetics for each vertical (Elegant Pink/Gold for Beauty, Brutalist Dark/Orange for Gym, Professional Blue/Green for Finance).
+- **High-Conversion Landing Pages**: Specialized LPs for each niche with optimized copy and calls-to-action.
+- **Responsive & Animated**: Smooth transitions, hover effects, and mobile-first design.
+
+### 🛠️ Core Capabilities
+- **Authentication**: Secure JWT-based auth with Role-Based Access Control (RBAC).
+- **Multi-Tenancy**: Data isolation and management for multiple businesses.
+- **Custom Dashboards**: Specialized views for each industry (Calendar for Salons, Check-ins for Gyms, MRR for Finance).
+- **Interactive Components**: Real-time charts, kanban boards, and dynamic tables.
 
 ---
 
-## 🏗️ Arquitetura do Projeto
+## 🏗️ Tech Stack
 
-### Estrutura de Diretórios
+### Frontend
+- **Framework**: React 18 + Vite
+- **Styling**: TailwindCSS + Lucide Icons + Shadcn/UI (concepts)
+- **State Management**: React Query + Context API
+- **Routing**: React Router v6
+
+### Backend
+- **Framework**: FastAPI (Python 3.10+)
+- **Database**: SQLite (Dev) / PostgreSQL (Prod)
+- **ORM**: SQLAlchemy + Alembic (Migrations)
+- **Authentication**: PyJWT + Passlib
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+
+- Python 3.10+
+- Git
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/alessandrolsdev/saas-boilerplate-mestre.git
+cd saas-boilerplate-mestre
+```
+
+### 2. Backend Setup
+```bash
+cd backend
+python -m venv venv
+# Windows
+.\venv\Scripts\activate
+# Linux/Mac
+# source venv/bin/activate
+
+pip install -r requirements.txt
+# Run migrations (ensure database is initialized)
+# alembic upgrade head 
+
+# Start Server
+uvicorn main:app --reload
+```
+*Backend runs on: `http://localhost:8000`*
+
+### 3. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+*Frontend runs on: `http://localhost:5173`*
+
+---
+
+## 📂 Project Structure
 
 ```
 saas-boilerplate-mestre/
-├── backend/                # API RESTful com FastAPI
-│   ├── app/
-│   │   ├── api/            # Endpoints da API (v1)
-│   │   ├── automations/    # Tarefas em background (Scheduler)
-│   │   ├── core/           # Configurações globais e segurança
-│   │   ├── crud/           # Camada de Acesso a Dados
-│   │   ├── db/             # Configuração do Banco e Sessão
-│   │   ├── models/         # Modelos SQLAlchemy (ORM)
-│   │   └── schemas/        # Schemas Pydantic (DTOs)
-│   ├── main.py             # Entrypoint da aplicação
-│   └── seed.py             # Script de povoamento inicial
+├── backend/            # FastAPI Application
+│   ├── app/            # Core logic, models, schemas
+│   ├── tests/          # Pytest suites
+│   └── main.py         # Entry point
 │
-└── frontend/               # SPA com Vue 3
-    ├── src/
-    │   ├── components/     # Componentes Reutilizáveis
-    │   ├── layouts/        # Layouts de Página
-    │   ├── services/       # Integração com API
-    │   ├── stores/         # Stores do Pinia
-    │   └── views/          # Páginas da Aplicação
-    └── index.html
+├── frontend/           # React Application
+│   ├── src/
+│   │   ├── components/ # Reusable UI components
+│   │   ├── pages/      # Views for Landing Pages & Dashboards
+│   │   │   ├── beauty/ # BeautyFlow specific pages
+│   │   │   ├── gym/    # GymMaster specific pages
+│   │   │   └── finance/# FinanceFlow specific pages
+│   │   └── stores/     # State management
+│
+└── docker-compose.yml  # Deployment configuration
 ```
 
 ---
 
-## 🚀 Começando
+## 🐳 Deployment (Docker)
 
-### Pré-requisitos
-
-- **Python 3.10+**
-- **Node.js 18+**
-
-### Instalação e Execução
-
-#### 1. Backend
+This project includes full Docker support for instant deployment.
 
 ```bash
-cd backend
-
-# Crie e ative o ambiente virtual
-python -m venv venv
-# Windows:
-.\venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-# Instale as dependências
-pip install -r requirements.txt
-
-# Inicialize o banco de dados com dados de teste
-python seed.py
-
-# Inicie o servidor
-uvicorn main:app --reload
+# Build and start all services
+docker-compose up -d --build
 ```
-*O backend estará acessível em `http://127.0.0.1:8000`*
-
-#### 2. Frontend
-
-```bash
-cd frontend
-
-# Instale as dependências
-npm install
-
-# Inicie o servidor de desenvolvimento
-npm run dev
-```
-*O frontend estará acessível em `http://localhost:5173`*
 
 ---
 
-## 📚 Documentação da API
+## 📄 License
 
-A documentação interativa (Swagger UI) é gerada automaticamente e pode ser acessada em:
-
-`http://127.0.0.1:8000/docs`
+Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-## 📄 Licença
+## 🤝 Contributing
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
 
 ---
 
-**SaaS Mestre Team**
+**Built with ❤️ for SaaS Founders.**

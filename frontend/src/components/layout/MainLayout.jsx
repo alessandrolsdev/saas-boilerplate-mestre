@@ -16,7 +16,7 @@ export default function MainLayout() {
     const menuItems = [
         { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
         { icon: Users, label: 'Clientes', path: '/clients' },
-        { icon: PieChart, label: 'Analytics', path: '/analytics' },
+        { icon: PieChart, label: 'Financeiro', path: '/finance' },
     ]
 
     const handleLogout = () => {
