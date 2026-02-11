@@ -1,6 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useForm } from 'react-hook-form';
 import {
     Scissors,
     Sparkles,
@@ -13,358 +12,329 @@ import {
     Filter,
     TrendingUp,
     Star,
-    Palette
+    Palette,
+    X,
+    Check
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * Services Component - BeautyFlow  
- * 
- * Gestão completa de serviços do salão.
- * CRUD de serviços com categorias, preços, duração.
- * Analytics de serviços mais populares e rentáveis.
- */
+import Modal from '../../components/ui/Modal';
+import { InfoTooltip } from '../../components/ui/Tooltip';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import EmptyState from '../../components/ui/EmptyState';
+import PieChart from '../../components/charts/PieChart';
+import AnimatedCard, { AnimatedButton } from '../../components/ui/AnimatedCard';
+import { useToast } from '../../components/ui/Toast';
+
 export default function Services() {
+    const { addToast } = useToast();
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedService, setSelectedService] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState('Todos');
+    const [categoryFilter, setCategoryFilter] = useState('Todos');
 
-    // Mock services data
-    const services = [
-        {
-            id: 1,
-            name: 'Corte Feminino',
-            category: 'Cabelo',
-            icon: <Scissors className="w-5 h-5" />,
-            price: 80,
-            duration: 45,
-            popularity: 95,
-            monthlyBookings: 124,
-            revenue: 9920,
-            color: 'from-pink-500 to-rose-500'
-        },
-        {
-            id: 2,
-            name: 'Coloração Completa',
-            category: 'Cabelo',
-            icon: <Palette className="w-5 h-5" />,
-            price: 280,
-            duration: 120,
-            popularity: 78,
-            monthlyBookings: 45,
-            revenue: 12600,
-            color: 'from-purple-500 to-pink-500'
-        },
-        {
-            id: 3,
-            name: 'Hidratação Profunda',
-            category: 'Cabelo',
-            icon: <Sparkles className="w-5 h-5" />,
-            price: 150,
-            duration: 90,
-            popularity: 82,
-            monthlyBookings: 67,
-            revenue: 10050,
-            color: 'from-blue-500 to-cyan-500'
-        },
-        {
-            id: 4,
-            name: 'Manicure',
-            category: 'Unhas',
-            icon: <Sparkles className="w-5 h-5" />,
-            price: 45,
-            duration: 30,
-            popularity: 92,
-            monthlyBookings: 156,
-            revenue: 7020,
-            color: 'from-rose-500 to-pink-500'
-        },
-        {
-            id: 5,
-            name: 'Pedicure',
-            category: 'Unhas',
-            icon: <Sparkles className="w-5 h-5" />,
-            price: 50,
-            duration: 40,
-            popularity: 88,
-            monthlyBookings: 142,
-            revenue: 7100,
-            color: 'from-pink-500 to-rose-500'
-        },
-        {
-            id: 6,
-            name: 'Design de Sobrancelhas',
-            category: 'Estética',
-            icon: <Star className="w-5 h-5" />,
-            price: 60,
-            duration: 30,
-            popularity: 85,
-            monthlyBookings: 98,
-            revenue: 5880,
-            color: 'from-amber-500 to-orange-500'
-        },
-        {
-            id: 7,
-            name: 'Alongamento de Cílios',
-            category: 'Estética',
-            icon: <Star className="w-5 h-5" />,
-            price: 200,
-            duration: 90,
-            popularity: 70,
-            monthlyBookings: 34,
-            revenue: 6800,
-            color: 'from-violet-500 to-purple-500'
-        },
-        {
-            id: 8,
-            name: 'Limpeza de Pele',
-            category: 'Estética',
-            icon: <Sparkles className="w-5 h-5" />,
-            price: 120,
-            duration: 60,
-            popularity: 75,
-            monthlyBookings: 56,
-            revenue: 6720,
-            color: 'from-green-500 to-emerald-500'
-        }
-    ];
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
 
-    const categories = ['Todos', 'Cabelo', 'Unhas', 'Estética', 'Spa'];
+    // Mock Data
+    const [services, setServices] = useState([
+        { id: 1, name: 'Corte Feminino', category: 'Cabelo', price: 80, duration: 60, popular: true, description: 'Corte completo com lavagem e finalização.' },
+        { id: 2, name: 'Manicure Completa', category: 'Unhas', price: 45, duration: 45, popular: true, description: 'Cutilagem e esmaltação.' },
+        { id: 3, name: 'Coloração Global', category: 'Coloração', price: 250, duration: 120, popular: false, description: 'Tintura completa.' },
+        { id: 4, name: 'Design de Sobrancelhas', category: 'Estética', price: 35, duration: 30, popular: true, description: 'Modelagem com pinça ou linha.' },
+        { id: 5, name: 'Pedicure', category: 'Unhas', price: 45, duration: 45, popular: false, description: 'Cutilagem e esmaltação dos pés.' },
+        { id: 6, name: 'Hidratação Profunda', category: 'Cabelo', price: 120, duration: 45, popular: false, description: 'Tratamento intensivo para fios danificados.' },
+    ]);
 
-    const filteredServices = services.filter((service) => {
+    const categories = ['Todos', 'Cabelo', 'Unhas', 'Estética', 'Coloração'];
+
+    // Stats
+    const stats = {
+        totalServices: services.length,
+        mostPopular: services.filter(s => s.popular).length,
+        avgPrice: (services.reduce((acc, curr) => acc + curr.price, 0) / services.length).toFixed(2)
+    };
+
+    // Filter Logic
+    const filteredServices = services.filter(service => {
         const matchesSearch = service.name.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesCategory = selectedCategory === 'Todos' || service.category === selectedCategory;
+        const matchesCategory = categoryFilter === 'Todos' || service.category === categoryFilter;
         return matchesSearch && matchesCategory;
     });
 
-    const totalRevenue = services.reduce((sum, s) => sum + s.revenue, 0);
-    const totalBookings = services.reduce((sum, s) => sum + s.monthlyBookings, 0);
-    const avgPrice = totalRevenue / totalBookings;
+    // Handlers
+    const handleAdd = () => {
+        setSelectedService(null);
+        reset({ name: '', category: 'Cabelo', price: '', duration: '' });
+        setIsEditModalOpen(true);
+    };
+
+    const handleEdit = (service) => {
+        setSelectedService(service);
+        reset(service);
+        setIsEditModalOpen(true);
+    };
+
+    const handleDeleteClick = (service) => {
+        setSelectedService(service);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        setServices(services.filter(s => s.id !== selectedService.id));
+        setIsDeleteModalOpen(false);
+        addToast('Serviço removido com sucesso!', 'success');
+    };
+
+    const onSubmit = (data) => {
+        if (selectedService) {
+            // Edit
+            setServices(services.map(s => s.id === selectedService.id ? { ...s, ...data, price: Number(data.price), duration: Number(data.duration) } : s));
+            addToast('Serviço atualizado!', 'success');
+        } else {
+            // Add
+            setServices([...services, { ...data, id: Date.now(), price: Number(data.price), duration: Number(data.duration), popular: false }]);
+            addToast('Novo serviço criado!', 'success');
+        }
+        setIsEditModalOpen(false);
+    };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white p-6">
+        <div className="space-y-8">
             {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
-                <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Serviços</h1>
+                    <p className="text-gray-500 mt-1">Gerencie o catálogo de serviços do seu salão</p>
+                </div>
+                <AnimatedButton
+                    onClick={handleAdd}
+                    className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-rose-500/30"
+                >
+                    <Plus className="w-5 h-5" />
+                    Novo Serviço
+                </AnimatedButton>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <AnimatedCard className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
+                    <div className="p-3 bg-rose-100 text-rose-600 rounded-xl">
+                        <Scissors className="w-6 h-6" />
+                    </div>
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-900 mb-2">Catálogo de Serviços</h1>
-                        <p className="text-gray-600">Gerencie todos os serviços oferecidos pelo salão</p>
+                        <p className="text-sm text-gray-500 font-medium">Total de Serviços</p>
+                        <h3 className="text-2xl font-bold text-gray-900">{stats.totalServices}</h3>
                     </div>
-                    <Link to="/beauty/dashboard">
-                        <Button variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50">
-                            ← Voltar ao Dashboard
-                        </Button>
-                    </Link>
-                </div>
+                </AnimatedCard>
 
-                {/* Stats Cards */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white rounded-xl p-5 border-2 border-rose-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-rose-500 to-pink-500 rounded-xl">
-                                <Scissors className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Total de Serviços</div>
-                                <div className="text-3xl font-black text-gray-900">{services.length}</div>
-                            </div>
-                        </div>
+                <AnimatedCard className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4" delay={0.1}>
+                    <div className="p-3 bg-amber-100 text-amber-600 rounded-xl">
+                        <Star className="w-6 h-6" />
                     </div>
-
-                    <div className="bg-white rounded-xl p-5 border-2 border-green-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl">
-                                <DollarSign className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Receita Mensal</div>
-                                <div className="text-3xl font-black text-gray-900">R$ {(totalRevenue / 1000).toFixed(1)}k</div>
-                            </div>
-                        </div>
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium">Populares</p>
+                        <h3 className="text-2xl font-bold text-gray-900">{stats.mostPopular}</h3>
                     </div>
+                </AnimatedCard>
 
-                    <div className="bg-white rounded-xl p-5 border-2 border-blue-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl">
-                                <TrendingUp className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Agendamentos/Mês</div>
-                                <div className="text-3xl font-black text-gray-900">{totalBookings}</div>
-                            </div>
-                        </div>
+                <AnimatedCard className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4" delay={0.2}>
+                    <div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl">
+                        <DollarSign className="w-6 h-6" />
+                    </div>
+                    <div>
+                        <p className="text-sm text-gray-500 font-medium">Preço Médio</p>
+                        <h3 className="text-2xl font-bold text-gray-900">R$ {stats.avgPrice}</h3>
+                    </div>
+                </AnimatedCard>
+            </div>
+
+            {/* Filters & Content */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row gap-4 justify-between items-center">
+                    {/* Search */}
+                    <div className="relative w-full md:w-96">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                        <input
+                            type="text"
+                            placeholder="Buscar serviços..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                        />
                     </div>
 
-                    <div className="bg-white rounded-xl p-5 border-2 border-purple-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl">
-                                <Star className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Ticket Médio</div>
-                                <div className="text-3xl font-black text-gray-900">R$ {avgPrice.toFixed(0)}</div>
-                            </div>
-                        </div>
+                    {/* Category Filter */}
+                    <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                        {categories.map(cat => (
+                            <button
+                                key={cat}
+                                onClick={() => setCategoryFilter(cat)}
+                                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${categoryFilter === cat
+                                        ? 'bg-rose-50 text-rose-700'
+                                        : 'text-gray-600 hover:bg-gray-50'
+                                    }`}
+                            >
+                                {cat}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
-                {/* Filters and Search */}
-                <div className="bg-white rounded-2xl shadow-lg border border-rose-100 p-6">
-                    <div className="flex items-center justify-between gap-4">
-                        {/* Category Filters */}
-                        <div className="flex items-center gap-2">
-                            <Filter className="w-5 h-5 text-gray-500" />
-                            {categories.map((cat) => (
-                                <button
-                                    key={cat}
-                                    onClick={() => setSelectedCategory(cat)}
-                                    className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${selectedCategory === cat
-                                            ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg'
-                                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                                        }`}
-                                >
-                                    {cat}
-                                </button>
-                            ))}
-                        </div>
+                {/* List */}
+                <div className="p-6">
+                    {filteredServices.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <AnimatePresence>
+                                {filteredServices.map((service, index) => (
+                                    <AnimatedCard
+                                        key={service.id}
+                                        className="group relative bg-white border border-gray-100 rounded-xl p-5 hover:border-rose-200 transition-colors"
+                                        delay={index * 0.05}
+                                    >
+                                        <div className="flex justify-between items-start mb-4">
+                                            <div className="p-2 bg-gray-50 rounded-lg group-hover:bg-rose-50 transition-colors">
+                                                <Palette className="w-5 h-5 text-gray-400 group-hover:text-rose-500" />
+                                            </div>
+                                            <div className="flex gap-1">
+                                                <button
+                                                    onClick={() => handleEdit(service)}
+                                                    className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                                >
+                                                    <Edit className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDeleteClick(service)}
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
 
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Buscar serviço..."
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="pl-10 pr-4 py-2 border border-rose-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 w-64"
-                                />
-                            </div>
-                            <Button className="bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-lg">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Novo Serviço
-                            </Button>
+                                        <h3 className="font-semibold text-gray-900 mb-1">{service.name}</h3>
+                                        <p className="text-sm text-gray-500 mb-4 line-clamp-2">{service.category} • {service.description}</p>
+
+                                        <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+                                            <div className="flex items-center gap-1.5 text-gray-600">
+                                                <Clock className="w-4 h-4" />
+                                                <span className="text-sm font-medium">{service.duration} min</span>
+                                            </div>
+                                            <div className="text-lg font-bold text-rose-600">
+                                                R$ {service.price}
+                                            </div>
+                                        </div>
+                                    </AnimatedCard>
+                                ))}
+                            </AnimatePresence>
                         </div>
-                    </div>
+                    ) : (
+                        <EmptyState
+                            icon={Scissors}
+                            title="Nenhum serviço encontrado"
+                            description="Tente ajustar sua busca ou filtros."
+                            actionLabel="Criar Serviço"
+                            onAction={handleAdd}
+                        />
+                    )}
                 </div>
             </div>
 
-            {/* Services Grid */}
-            <div className="max-w-7xl mx-auto">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredServices.map((service) => (
-                        <div
-                            key={service.id}
-                            className="bg-white rounded-2xl shadow-lg border-2 border-rose-100 hover:border-rose-300 transition-all overflow-hidden group"
+            {/* Edit/Create Modal */}
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title={selectedService ? `Editar ${selectedService.name}` : "Novo Serviço"}
+            >
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome do Serviço</label>
+                        <input
+                            {...register('name', { required: true })}
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500 focus:border-transparent"
+                            placeholder="Ex: Corte Bordado"
+                        />
+                        {errors.name && <span className="text-xs text-red-500">Obrigatório</span>}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                            <select
+                                {...register('category')}
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
+                            >
+                                {categories.filter(c => c !== 'Todos').map(c => (
+                                    <option key={c} value={c}>{c}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Preço (R$)</label>
+                            <input
+                                type="number"
+                                {...register('price', { required: true, min: 0 })}
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Duração (min)</label>
+                            <input
+                                type="number"
+                                {...register('duration', { required: true, min: 15, step: 15 })}
+                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
+                            />
+                        </div>
+                        <div className="flex items-center mt-6">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" className="rounded text-rose-600 focus:ring-rose-500" {...register('popular')} />
+                                <span className="text-sm font-medium text-gray-700">Destacar como Popular</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+                        <textarea
+                            {...register('description')}
+                            rows={3}
+                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-rose-500"
+                            placeholder="Detalhes do serviço..."
+                        />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-4">
+                        <button
+                            type="button"
+                            onClick={() => setIsEditModalOpen(false)}
+                            className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
                         >
-                            {/* Header with Gradient */}
-                            <div className={`bg-gradient-to-r ${service.color} p-6 text-white`}>
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                                        {service.icon}
-                                    </div>
-                                    <span className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold">
-                                        {service.category}
-                                    </span>
-                                </div>
-                                <h3 className="text-2xl font-black mb-2">{service.name}</h3>
-                                <div className="flex items-baseline gap-2">
-                                    <span className="text-4xl font-black">R$ {service.price}</span>
-                                    <span className="text-white/80">/ {service.duration} min</span>
-                                </div>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="p-6">
-                                <div className="space-y-4 mb-6">
-                                    <div>
-                                        <div className="flex items-center justify-between text-sm mb-2">
-                                            <span className="text-gray-600 font-semibold">Popularidade</span>
-                                            <span className="font-bold text-rose-600">{service.popularity}%</span>
-                                        </div>
-                                        <div className="w-full bg-gray-200 rounded-full h-2">
-                                            <div
-                                                className="bg-gradient-to-r from-rose-500 to-pink-500 h-2 rounded-full transition-all"
-                                                style={{ width: `${service.popularity}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="bg-rose-50 rounded-xl p-3">
-                                            <div className="text-xs text-gray-600 font-semibold mb-1">Agendamentos</div>
-                                            <div className="text-2xl font-black text-gray-900">{service.monthlyBookings}</div>
-                                            <div className="text-xs text-gray-500">este mês</div>
-                                        </div>
-                                        <div className="bg-green-50 rounded-xl p-3">
-                                            <div className="text-xs text-gray-600 font-semibold mb-1">Receita</div>
-                                            <div className="text-2xl font-black text-green-600">
-                                                R$ {(service.revenue / 1000).toFixed(1)}k
-                                            </div>
-                                            <div className="text-xs text-gray-500">este mês</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        className="flex-1 border-rose-300 text-rose-600 hover:bg-rose-50"
-                                    >
-                                        <Edit className="w-4 h-4 mr-2" />
-                                        Editar
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="border-red-300 text-red-600 hover:bg-red-50"
-                                    >
-                                        <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Top Services Section */}
-            <div className="max-w-7xl mx-auto mt-8">
-                <div className="bg-white rounded-2xl shadow-xl border-2 border-rose-200 p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                        <Star className="w-7 h-7 text-yellow-500 fill-current" />
-                        Top 3 Serviços Mais Rentáveis
-                    </h2>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {services
-                            .sort((a, b) => b.revenue - a.revenue)
-                            .slice(0, 3)
-                            .map((service, idx) => (
-                                <div
-                                    key={service.id}
-                                    className="relative bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-6 border-2 border-rose-200"
-                                >
-                                    <div className="absolute -top-3 -right-3 w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-black text-lg shadow-lg">
-                                        #{idx + 1}
-                                    </div>
-                                    <div className="mb-4">
-                                        <h3 className="text-xl font-bold text-gray-900 mb-1">{service.name}</h3>
-                                        <p className="text-sm text-gray-600">{service.category}</p>
-                                    </div>
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <div className="text-sm text-gray-600 font-semibold">Receita Mensal</div>
-                                            <div className="text-3xl font-black text-green-600">
-                                                R$ {(service.revenue / 1000).toFixed(1)}k
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <div className="text-sm text-gray-600 font-semibold">Agendamentos</div>
-                                            <div className="text-3xl font-black text-blue-600">{service.monthlyBookings}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+                            Cancelar
+                        </button>
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white rounded-lg transition-colors font-medium shadow-lg shadow-rose-500/30"
+                        >
+                            {selectedService ? 'Salvar Alterações' : 'Criar Serviço'}
+                        </button>
                     </div>
-                </div>
-            </div>
+                </form>
+            </Modal>
+
+            {/* Delete Confirmation */}
+            <ConfirmDialog
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Excluir serviço?"
+                description={`Tem certeza que deseja excluir "${selectedService?.name}"? Esta ação não pode ser desfeita.`}
+                confirmLabel="Sim, excluir"
+                cancelLabel="Cancelar"
+                variant="danger"
+            />
         </div>
     );
 }

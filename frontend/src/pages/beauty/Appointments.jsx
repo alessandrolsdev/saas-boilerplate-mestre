@@ -1,332 +1,134 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import {
     Calendar as CalendarIcon,
+    Plus,
     Clock,
     User,
-    Phone,
-    Mail,
-    CheckCircle2,
-    XCircle,
-    AlertCircle,
-    Plus,
-    Filter,
     Search,
-    ChevronLeft,
-    ChevronRight,
-    Sparkles,
-    Scissors,
-    Palette
+    Filter
 } from 'lucide-react';
+import Calendar from '../../components/beauty/Calendar';
+import TimeSlotPicker from '../../components/beauty/TimeSlotPicker';
+import Modal from '../../components/ui/Modal';
+import { AnimatedButton } from '../../components/ui/AnimatedCard';
+import { useToast } from '../../components/ui/Toast';
 
-/**
- * Appointments Component - BeautyFlow
- * 
- * Calendário completo de agendamentos para salão de beleza.
- * Visão semanal com agendamentos por profissional e horário.
- * Funcionalidades: filtros, busca, confirmação, cancelamento.
- */
 export default function Appointments() {
-    const [currentWeek, setCurrentWeek] = useState(0);
-    const [selectedDay, setSelectedDay] = useState(1);
-    const [viewMode, setViewMode] = useState('week'); // week, day
+    const { addToast } = useToast();
+    const [isNewBookingOpen, setIsNewBookingOpen] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
 
-    // Mock appointments data
-    const appointments = [
-        {
-            id: 1,
-            time: '09:00',
-            duration: 60,
-            client: 'Maria Silva',
-            phone: '(11) 98765-4321',
-            service: 'Corte + Escova',
-            professional: 'Carla Santos',
-            status: 'confirmed',
-            value: 120
-        },
-        {
-            id: 2,
-            time: '10:30',
-            duration: 90,
-            client: 'Ana Costa',
-            phone: '(11) 91234-5678',
-            service: 'Coloração Completa',
-            professional: 'Carla Santos',
-            status: 'confirmed',
-            value: 280
-        },
-        {
-            id: 3,
-            time: '09:30',
-            duration: 45,
-            client: 'Juliana Oliveira',
-            phone: '(11) 99876-5432',
-            service: 'Manicure + Pedicure',
-            professional: 'Beatriz Lima',
-            status: 'pending',
-            value: 80
-        },
-        {
-            id: 4,
-            time: '11:00',
-            duration: 120,
-            client: 'Paula Mendes',
-            phone: '(11) 97654-3210',
-            service: 'Hidratação Profunda',
-            professional: 'Beatriz Lima',
-            status: 'confirmed',
-            value: 150
-        },
-        {
-            id: 5,
-            time: '14:00',
-            duration: 60,
-            client: 'Roberta Alves',
-            phone: '(11) 96543-2109',
-            service: 'Design de Sobrancelhas',
-            professional: 'Carla Santos',
-            status: 'cancelled',
-            value: 60
-        },
-        {
-            id: 6,
-            time: '15:30',
-            duration: 90,
-            client: 'Fernanda Rocha',
-            phone: '(11) 95432-1098',
-            service: 'Alongamento de Cílios',
-            professional: 'Beatriz Lima',
-            status: 'confirmed',
-            value: 200
+    // Mock Events
+    const [events, setEvents] = useState([
+        { id: 1, title: 'Corte - Maria', start: '2024-02-12T10:00:00', end: '2024-02-12T11:00:00', backgroundColor: '#f43f5e' },
+        { id: 2, title: 'Unha - Joana', start: '2024-02-12T14:00:00', end: '2024-02-12T15:00:00', backgroundColor: '#ec4899' },
+    ]);
+
+    const handleDateClick = (arg) => {
+        setSelectedDate(arg.dateStr);
+        setIsNewBookingOpen(true);
+    };
+
+    const handleEventClick = (info) => {
+        addToast(`Agendamento: ${info.event.title}`, 'info');
+    };
+
+    const handleCreateBooking = () => {
+        if (!selectedTime) {
+            addToast('Selecione um horário!', 'warning');
+            return;
         }
-    ];
 
-    const professionals = ['Todas', 'Carla Santos', 'Beatriz Lima', 'Mariana Costa'];
-    const weekDays = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-    const timeSlots = Array.from({ length: 11 }, (_, i) => `${9 + i}:00`);
+        const dateToUse = selectedDate || new Date().toISOString().split('T')[0];
 
-    const getStatusDetails = (status) => {
-        switch (status) {
-            case 'confirmed':
-                return { icon: <CheckCircle2 className="w-4 h-4" />, color: 'text-green-400 bg-green-500/20', label: 'Confirmado' };
-            case 'pending':
-                return { icon: <AlertCircle className="w-4 h-4" />, color: 'text-yellow-400 bg-yellow-500/20', label: 'Pendente' };
-            case 'cancelled':
-                return { icon: <XCircle className="w-4 h-4" />, color: 'text-red-400 bg-red-500/20', label: 'Cancelado' };
-            default:
-                return { icon: null, color: '', label: '' };
-        }
+        const newEvent = {
+            id: Date.now().toString(),
+            title: 'Novo Agendamento',
+            start: `${dateToUse}T${selectedTime}:00`,
+            end: `${dateToUse}T${parseInt(selectedTime.split(':')[0]) + 1}:00:00`,
+            backgroundColor: '#8b5cf6'
+        };
+
+        setEvents([...events, newEvent]);
+        setIsNewBookingOpen(false);
+        addToast('Agendamento criado com sucesso!', 'success');
+        setSelectedTime(null);
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white p-6">
-            {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-4xl font-bold text-gray-900 mb-2">Agenda de Atendimentos</h1>
-                        <p className="text-gray-600">Gerencie todos os agendamentos do salão</p>
-                    </div>
-                    <Link to="/beauty/dashboard">
-                        <Button variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50">
-                            ← Voltar ao Dashboard
-                        </Button>
-                    </Link>
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Agenda</h1>
+                    <p className="text-gray-500 mt-1">Gerencie os agendamentos do salão</p>
                 </div>
-
-                {/* Controls */}
-                <div className="bg-white rounded-2xl shadow-lg border border-rose-100 p-6">
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        {/* Week Navigation */}
-                        <div className="flex items-center gap-3">
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentWeek(currentWeek - 1)}
-                                className="border-rose-300 text-rose-600 hover:bg-rose-50"
-                            >
-                                <ChevronLeft className="w-4 h-4" />
-                            </Button>
-                            <div className="px-4 py-2 bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl text-white font-bold">
-                                10 - 16 Fevereiro 2025
-                            </div>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentWeek(currentWeek + 1)}
-                                className="border-rose-300 text-rose-600 hover:bg-rose-50"
-                            >
-                                <ChevronRight className="w-4 h-4" />
-                            </Button>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="flex items-center gap-3">
-                            <div className="relative">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                                <input
-                                    type="text"
-                                    placeholder="Buscar cliente..."
-                                    className="pl-10 pr-4 py-2 border border-rose-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"
-                                />
-                            </div>
-                            <Button variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50">
-                                <Filter className="w-4 h-4 mr-2" />
-                                Filtrar
-                            </Button>
-                            <Button className="bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-lg">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Novo Agendamento
-                            </Button>
-                        </div>
-                    </div>
+                <div className="flex gap-2">
+                    <button className="bg-white border text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50">
+                        <Filter className="w-4 h-4" />
+                        Filtrar
+                    </button>
+                    <AnimatedButton
+                        onClick={() => setIsNewBookingOpen(true)}
+                        className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-rose-500/30"
+                    >
+                        <Plus className="w-5 h-5" />
+                        Novo Agendamento
+                    </AnimatedButton>
                 </div>
             </div>
 
-            {/* Calendar Grid */}
-            <div className="max-w-7xl mx-auto">
-                <div className="bg-white rounded-2xl shadow-xl border border-rose-100 overflow-hidden">
-                    {/* Days Header */}
-                    <div className="grid grid-cols-7 bg-gradient-to-r from-rose-500 to-pink-500">
-                        <div className="p-4 border-r border-rose-400/30">
-                            <div className="text-white/80 text-xs font-semibold uppercase">Horário</div>
-                        </div>
-                        {weekDays.map((day, idx) => (
-                            <div
-                                key={idx}
-                                className={`p-4 border-r border-rose-400/30 last:border-r-0 cursor-pointer transition-all ${selectedDay === idx ? 'bg-white/20' : 'hover:bg-white/10'
-                                    }`}
-                                onClick={() => setSelectedDay(idx)}
-                            >
-                                <div className="text-white font-bold text-center">{day}</div>
-                                <div className="text-white/80 text-sm text-center">{10 + idx}/02</div>
-                            </div>
-                        ))}
-                    </div>
-
-                    {/* Time Slots */}
-                    <div className="grid grid-cols-7">
-                        {/* Time Column */}
-                        <div className="bg-rose-50">
-                            {timeSlots.map((time, idx) => (
-                                <div
-                                    key={idx}
-                                    className="h-24 border-b border-rose-200 flex items-center justify-center text-sm font-semibold text-gray-600"
-                                >
-                                    {time}
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-3">
+                    <Calendar
+                        events={events}
+                        onDateClick={handleDateClick}
+                        onEventClick={handleEventClick}
+                    />
+                </div>
+                <div className="space-y-6">
+                    <div className="bg-white p-5 rounded-xl border shadow-sm">
+                        <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <Clock className="w-4 h-4 text-rose-500" />
+                            Próximos
+                        </h3>
+                        <div className="space-y-3">
+                            {events.slice(0, 3).map(evt => (
+                                <div key={evt.id} className="p-3 bg-gray-50 rounded-lg border-l-4 border-rose-500">
+                                    <div className="font-medium text-sm">{evt.title}</div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                        {new Date(evt.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </div>
                                 </div>
                             ))}
                         </div>
-
-                        {/* Day Columns */}
-                        {weekDays.map((_, dayIdx) => (
-                            <div key={dayIdx} className="border-l border-rose-100">
-                                {timeSlots.map((time, slotIdx) => {
-                                    // Find appointments for this time slot
-                                    const dayAppointments = appointments.filter(
-                                        (apt) => apt.time === time && dayIdx === 1 // Mock: showing appointments on Tuesday
-                                    );
-
-                                    return (
-                                        <div
-                                            key={slotIdx}
-                                            className="h-24 border-b border-rose-100 p-2 hover:bg-rose-50/50 transition-colors relative group"
-                                        >
-                                            {dayAppointments.map((apt) => {
-                                                const statusDetails = getStatusDetails(apt.status);
-                                                return (
-                                                    <div
-                                                        key={apt.id}
-                                                        className={`absolute inset-2 rounded-lg p-2 border-l-4 ${apt.status === 'confirmed'
-                                                                ? 'bg-green-50 border-green-500'
-                                                                : apt.status === 'pending'
-                                                                    ? 'bg-yellow-50 border-yellow-500'
-                                                                    : 'bg-red-50 border-red-500'
-                                                            } cursor-pointer hover:shadow-lg transition-all z-10`}
-                                                        style={{ height: `${(apt.duration / 60) * 96 - 16}px` }}
-                                                    >
-                                                        <div className="flex items-start justify-between mb-1">
-                                                            <div className="flex-1 min-w-0">
-                                                                <div className="font-bold text-sm text-gray-900 truncate">{apt.client}</div>
-                                                                <div className="text-xs text-gray-600 truncate">{apt.service}</div>
-                                                            </div>
-                                                            <div className={`${statusDetails.color} rounded-full p-1 ml-1 flex-shrink-0`}>
-                                                                {statusDetails.icon}
-                                                            </div>
-                                                        </div>
-                                                        <div className="text-xs text-gray-500 flex items-center gap-1">
-                                                            <User className="w-3 h-3" />
-                                                            {apt.professional}
-                                                        </div>
-                                                        <div className="text-xs font-bold text-rose-600 mt-1">
-                                                            R$ {apt.value}
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
-                                            {/* Empty slot hint */}
-                                            {dayAppointments.length === 0 && (
-                                                <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute inset-0 flex items-center justify-center">
-                                                    <Plus className="w-6 h-6 text-rose-300" />
-                                                </div>
-                                            )}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
 
-            {/* Stats Footer */}
-            <div className="max-w-7xl mx-auto mt-6 grid grid-cols-4 gap-4">
-                <div className="bg-white rounded-xl p-4 border border-green-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-green-500/20 rounded-lg">
-                            <CheckCircle2 className="w-5 h-5 text-green-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-gray-900">15</div>
-                            <div className="text-sm text-gray-600">Confirmados</div>
-                        </div>
+            <Modal
+                isOpen={isNewBookingOpen}
+                onClose={() => setIsNewBookingOpen(false)}
+                title="Novo Agendamento"
+            >
+                <div className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Selecione o Horário</label>
+                        <TimeSlotPicker
+                            selectedTime={selectedTime}
+                            onSelect={setSelectedTime}
+                            occupiedTimes={['10:00', '14:30']}
+                        />
                     </div>
+
+                    <button
+                        onClick={handleCreateBooking}
+                        className="w-full bg-rose-600 text-white py-3 rounded-xl font-semibold hover:bg-rose-700 transition-colors shadow-lg shadow-rose-500/30"
+                    >
+                        Confirmar Agendamento ({selectedDate || 'Hoje'} às {selectedTime || '--:--'})
+                    </button>
                 </div>
-                <div className="bg-white rounded-xl p-4 border border-yellow-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-yellow-500/20 rounded-lg">
-                            <AlertCircle className="w-5 h-5 text-yellow-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-gray-900">3</div>
-                            <div className="text-sm text-gray-600">Pendentes</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl p-4 border border-rose-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-rose-500/20 rounded-lg">
-                            <Sparkles className="w-5 h-5 text-rose-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-gray-900">R$ 2.4k</div>
-                            <div className="text-sm text-gray-600">Receita Prevista</div>
-                        </div>
-                    </div>
-                </div>
-                <div className="bg-white rounded-xl p-4 border border-blue-200">
-                    <div className="flex items-center gap-3">
-                        <div className="p-2 bg-blue-500/20 rounded-lg">
-                            <Clock className="w-5 h-5 text-blue-600" />
-                        </div>
-                        <div>
-                            <div className="text-2xl font-black text-gray-900">85%</div>
-                            <div className="text-sm text-gray-600">Taxa de Ocupação</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            </Modal>
         </div>
     );
 }

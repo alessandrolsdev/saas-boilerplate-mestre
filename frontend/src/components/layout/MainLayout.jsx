@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
     LayoutDashboard, Users, LogOut, Bell, Search,
-    Menu, PieChart
+    Menu, PieChart, Calendar, Scissors, Dumbbell,
+    CreditCard, QrCode, CheckCircle2, DollarSign
 } from 'lucide-react'
 import { useAuth } from '@/stores/useAuth'
 import { cn } from '@/lib/utils'
+import ProductSwitcher from '../layout/ProductSwitcher'
 
 export default function MainLayout() {
     const navigate = useNavigate()
@@ -13,11 +15,37 @@ export default function MainLayout() {
     const logout = useAuth((state) => state.logout)
     const [sidebarOpen, setSidebarOpen] = useState(true)
 
-    const menuItems = [
-        { icon: LayoutDashboard, label: 'Overview', path: '/dashboard' },
-        { icon: Users, label: 'Clientes', path: '/clients' },
-        { icon: PieChart, label: 'Financeiro', path: '/finance' },
-    ]
+    // Dynamic Menu Items based on Route
+    const getMenuItems = () => {
+        const path = location.pathname;
+
+        if (path.includes('/beauty')) {
+            return [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/beauty/dashboard' },
+                { icon: Calendar, label: 'Agenda', path: '/beauty/appointments' },
+                { icon: Users, label: 'Profissionais', path: '/beauty/professionals' },
+                { icon: Scissors, label: 'Serviços', path: '/beauty/services' },
+            ];
+        } else if (path.includes('/gym')) {
+            return [
+                { icon: LayoutDashboard, label: 'Dashboard', path: '/gym/dashboard' },
+                { icon: Users, label: 'Membros', path: '/gym/members' },
+                { icon: QrCode, label: 'Check-ins', path: '/gym/check-ins' },
+                { icon: CheckCircle2, label: 'Planos', path: '/gym/plans' },
+                { icon: DollarSign, label: 'Pagamentos', path: '/gym/payments' },
+            ];
+        } else {
+            // Default (Finance)
+            return [
+                { icon: LayoutDashboard, label: 'Visão Geral', path: '/dashboard' },
+                { icon: Users, label: 'Clientes', path: '/clients' },
+                { icon: PieChart, label: 'Receitas', path: '/finance' },
+                { icon: CreditCard, label: 'Cobranças', path: '/charges' },
+            ];
+        }
+    };
+
+    const menuItems = getMenuItems();
 
     const handleLogout = () => {
         logout()
@@ -51,14 +79,14 @@ export default function MainLayout() {
                                 onClick={() => navigate(item.path)}
                                 className={cn(
                                     "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative group",
-                                    isActive ? "bg-indigo-600 text-white" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                    isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 )}
                             >
                                 <item.icon size={20} />
                                 {sidebarOpen && <span>{item.label}</span>}
 
                                 {!sidebarOpen && (
-                                    <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50">
+                                    <div className="absolute left-full ml-2 px-2 py-1 bg-slate-800 text-xs rounded opacity-0 group-hover:opacity-100 whitespace-nowrap z-50 pointer-events-none">
                                         {item.label}
                                     </div>
                                 )}
@@ -91,7 +119,13 @@ export default function MainLayout() {
                         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-800 rounded-lg lg:hidden">
                             <Menu size={20} />
                         </button>
-                        <div className="flex items-center gap-2 text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800/50">
+
+                        {/* Product Switcher - NEW */}
+                        <div className="border-r border-slate-800/50 pr-4 mr-2">
+                            <ProductSwitcher />
+                        </div>
+
+                        <div className="hidden md:flex items-center gap-2 text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800/50">
                             <Search size={14} />
                             <input className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-slate-600" placeholder="Buscar..." />
                         </div>

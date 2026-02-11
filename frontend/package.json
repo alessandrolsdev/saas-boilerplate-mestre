@@ -10,6 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.20",
+    "@fullcalendar/interaction": "^6.1.20",
+    "@fullcalendar/react": "^6.1.20",
+    "@fullcalendar/timegrid": "^6.1.20",
     "@hookform/resolvers": "^5.2.2",
     "@studio-freight/lenis": "^1.0.42",
     "@tailwindcss/postcss": "^4.1.18",
@@ -21,6 +25,7 @@
     "framer-motion": "^12.34.0",
     "lucide-react": "^0.556.0",
     "postcss": "^8.5.6",
+    "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-apexcharts": "^1.9.0",
     "react-dom": "^19.2.0",

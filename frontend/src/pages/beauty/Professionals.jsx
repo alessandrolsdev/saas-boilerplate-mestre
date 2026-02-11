@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
 import {
     User,
     Users,
@@ -9,352 +9,209 @@ import {
     TrendingUp,
     Phone,
     Mail,
-    Clock,
-    Award,
     Plus,
     Edit,
-    BarChart3,
-    Sparkles
+    Trash2,
+    Search,
+    Award
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-/**
- * Professionals Component - BeautyFlow
- * 
- * Gestão completa de profissionais do salão.
- * Perfis detalhados com especialidades, agenda e performance.
- */
+import Modal from '../../components/ui/Modal';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import EmptyState from '../../components/ui/EmptyState';
+import AnimatedCard, { AnimatedButton } from '../../components/ui/AnimatedCard';
+import { useToast } from '../../components/ui/Toast';
+
 export default function Professionals() {
-    // Mock professionals data
-    const professionals = [
-        {
-            id: 1,
-            name: 'Carla Santos',
-            role: 'Cabeleireira Master',
-            avatar: null,
-            specialties: ['Coloração', 'Cortes', 'Escova'],
-            rating: 4.9,
-            reviewsCount: 156,
-            phone: '(11) 98765-4321',
-            email: 'carla@belezaflow.com',
-            appointmentsThisMonth: 124,
-            revenueThisMonth: 18450,
-            avgTicket: 148.79,
-            availability: 85,
-            yearsExperience: 12,
-            status: 'active',
-            color: 'from-rose-500 to-pink-500'
-        },
-        {
-            id: 2,
-            name: ' Beatriz Lima',
-            role: 'Manicure & Designer de Sobrancelhas',
-            avatar: null,
-            specialties: ['Manicure', 'Pedicure', 'Design de Sobrancelhas'],
-            rating: 4.8,
-            reviewsCount: 98,
-            phone: '(11) 91234-5678',
-            email: 'beatriz@belezaflow.com',
-            appointmentsThisMonth: 156,
-            revenueThisMonth: 12480,
-            avgTicket: 80,
-            availability: 92,
-            yearsExperience: 8,
-            status: 'active',
-            color: 'from-purple-500 to-pink-500'
-        },
-        {
-            id: 3,
-            name: 'Mariana Costa',
-            role: 'Esteticista & Terapeuta',
-            avatar: null,
-            specialties: ['Limpeza de Pele', 'Massagem', 'Hidratação'],
-            rating: 5.0,
-            reviewsCount: 67,
-            phone: '(11) 99876-5432',
-            email: 'mariana@belezaflow.com',
-            appointmentsThisMonth: 89,
-            revenueThisMonth: 14230,
-            avgTicket: 159.89,
-            availability: 78,
-            yearsExperience: 15,
-            status: 'active',
-            color: 'from-green-500 to-emerald-500'
-        },
-        {
-            id: 4,
-            name: 'Paula Mendes',
-            role: 'Especialista em Cílios',
-            avatar: null,
-            specialties: ['Alongamento de Cílios', 'Volume Russo'],
-            rating: 4.7,
-            reviewsCount: 42,
-            phone: '(11) 97654-3210',
-            email: 'paula@belezaflow.com',
-            appointmentsThisMonth: 34,
-            revenueThisMonth: 6800,
-            avgTicket: 200,
-            availability: 65,
-            yearsExperience: 5,
-            status: 'active',
-            color: 'from-violet-500 to-purple-500'
-        }
-    ];
+    const { addToast } = useToast();
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedProfessional, setSelectedProfessional] = useState(null);
+    const [searchTerm, setSearchTerm] = useState('');
 
-    const totalRevenue = professionals.reduce((sum, p) => sum + p.revenueThisMonth, 0);
-    const totalAppointments = professionals.reduce((sum, p) => sum + p.appointmentsThisMonth, 0);
-    const avgRating = professionals.reduce((sum, p) => sum + p.rating, 0) / professionals.length;
+    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+
+    // Mock Data
+    const [professionals, setProfessionals] = useState([
+        { id: 1, name: 'Ana Silva', specialty: 'Hairstylist', rating: 4.9, appointments: 124, status: 'Active' },
+        { id: 2, name: 'Beatriz Costa', specialty: 'Manicure', rating: 4.8, appointments: 98, status: 'Active' },
+        { id: 3, name: 'Carla Dias', specialty: 'Colorista', rating: 5.0, appointments: 156, status: 'Active' },
+        { id: 4, name: 'Daniela Lima', specialty: 'Esteticista', rating: 4.7, appointments: 87, status: 'Away' },
+    ]);
+
+    // Stats
+    const stats = {
+        total: professionals.length,
+        active: professionals.filter(p => p.status === 'Active').length,
+        avgRating: 4.85
+    };
+
+    const filteredProfessionals = professionals.filter(p =>
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.specialty.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    const handleAdd = () => {
+        setSelectedProfessional(null);
+        reset({ name: '', specialty: '', status: 'Active', email: '', phone: '' });
+        setIsEditModalOpen(true);
+    };
+
+    const handleEdit = (prof) => {
+        setSelectedProfessional(prof);
+        reset(prof);
+        setIsEditModalOpen(true);
+    };
+
+    const handleDeleteClick = (prof) => {
+        setSelectedProfessional(prof);
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmDelete = () => {
+        setProfessionals(prev => prev.filter(p => p.id !== selectedProfessional.id));
+        setIsDeleteModalOpen(false);
+        addToast('Profissional removido com sucesso!', 'success');
+    };
+
+    const onSubmit = (data) => {
+        if (selectedProfessional) {
+            setProfessionals(prev => prev.map(p => p.id === selectedProfessional.id ? { ...p, ...data } : p));
+            addToast('Perfil atualizado com sucesso!', 'success');
+        } else {
+            setProfessionals(prev => [...prev, { ...data, id: Date.now(), rating: 5.0, appointments: 0 }]);
+            addToast('Profissional adicionado!', 'success');
+        }
+        setIsEditModalOpen(false);
+    };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-white p-6">
-            {/* Header */}
-            <div className="max-w-7xl mx-auto mb-8">
-                <div className="flex items-center justify-between mb-6">
-                    <div>
-                        <h1 className="text-4xl font-bold text-gray-900 mb-2">Equipe de Profissionais</h1>
-                        <p className="text-gray-600">Gerencie todos os profissionais do salão e suas performances</p>
-                    </div>
-                    <Link to="/beauty/dashboard">
-                        <Button variant="outline" className="border-rose-300 text-rose-600 hover:bg-rose-50">
-                            ← Voltar ao Dashboard
-                        </Button>
-                    </Link>
+        <div className="space-y-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Equipe</h1>
+                    <p className="text-gray-500 mt-1">Gerencie seus profissionais e especialistas</p>
                 </div>
-
-                {/* Stats Cards */}
-                <div className="grid grid-cols-4 gap-4 mb-6">
-                    <div className="bg-white rounded-xl p-5 border-2 border-rose-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-rose-500 to-pink-500 rounded-xl">
-                                <Users className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Profissionais Ativos</div>
-                                <div className="text-3xl font-black text-gray-900">{professionals.length}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-5 border-2 border-green-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl">
-                                <DollarSign className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Receita Total</div>
-                                <div className="text-3xl font-black text-gray-900">R$ {(totalRevenue / 1000).toFixed(1)}k</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-5 border-2 border-blue-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl">
-                                <Calendar className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Atendimentos</div>
-                                <div className="text-3xl font-black text-gray-900">{totalAppointments}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="bg-white rounded-xl p-5 border-2 border-yellow-200 shadow-sm">
-                        <div className="flex items-center gap-3">
-                            <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl">
-                                <Star className="w-6 h-6 text-white fill-current" />
-                            </div>
-                            <div>
-                                <div className="text-sm text-gray-600 font-semibold">Avaliação Média</div>
-                                <div className="text-3xl font-black text-gray-900">{avgRating.toFixed(1)}</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Add Professional Button */}
-                <div className="bg-white rounded-2xl shadow-lg border border-rose-100 p-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-lg font-bold text-gray-900 mb-1">Expandir Equipe</h3>
-                            <p className="text-sm text-gray-600">Adicione novos profissionais ao seu salão</p>
-                        </div>
-                        <Button className="bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-lg">
-                            <Plus className="w-4 h-4 mr-2" />
-                            Novo Profissional
-                        </Button>
-                    </div>
-                </div>
+                <AnimatedButton
+                    onClick={handleAdd}
+                    className="bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 shadow-lg shadow-rose-500/30"
+                >
+                    <Plus className="w-5 h-5" />
+                    Adicionar Profissional
+                </AnimatedButton>
             </div>
 
-            {/* Professionals Grid */}
-            <div className="max-w-7xl mx-auto">
-                <div className="grid md:grid-cols-2 gap-6 mb-8">
-                    {professionals.map((pro) => (
-                        <div
-                            key={pro.id}
-                            className="bg-white rounded-2xl shadow-xl border-2 border-rose-100 hover:border-rose-300 transition-all overflow-hidden group"
-                        >
-                            {/* Header with Gradient */}
-                            <div className={`bg-gradient-to-r ${pro.color} p-6 text-white relative`}>
-                                <div className="flex items-start gap-4">
-                                    <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-4xl font-black border-4 border-white/30">
-                                        {pro.name.charAt(0)}
-                                    </div>
-                                    <div className="flex-1">
-                                        <h3 className="text-2xl font-black mb-1">{pro.name}</h3>
-                                        <p className="text-white/90 font-semibold mb-3">{pro.role}</p>
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-1 bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full">
-                                                <Star className="w-4 h-4 fill-current" />
-                                                <span className="font-bold">{pro.rating}</span>
-                                                <span className="text-xs text-white/80">({pro.reviewsCount})</span>
-                                            </div>
-                                            <div className="px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-bold">
-                                                {pro.yearsExperience} anos
-                                            </div>
+            {/* Content */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                <div className="relative mb-6">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                        type="text"
+                        placeholder="Buscar por nome ou especialidade..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full md:w-96 pl-10 pr-4 py-2 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all"
+                    />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <AnimatePresence>
+                        {filteredProfessionals.map((prof, index) => (
+                            <AnimatedCard
+                                key={prof.id}
+                                className="border border-gray-100 rounded-xl p-6 flex flex-col gap-4 hover:border-rose-200 transition-all bg-gradient-to-br from-white to-gray-50/50"
+                                delay={index * 0.1}
+                            >
+                                <div className="flex items-start justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 bg-rose-100 rounded-full flex items-center justify-center text-rose-600 font-bold text-lg">
+                                            {prof.name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className="font-semibold text-gray-900">{prof.name}</h3>
+                                            <p className="text-sm text-gray-500">{prof.specialty}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="px-3 py-1 bg-green-500 rounded-full text-xs font-black uppercase mb-2">
-                                            Ativo
+                                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${prof.status === 'Active' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                                        }`}>
+                                        {prof.status === 'Active' ? 'Disponível' : 'Ausente'}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 py-4 border-t border-b border-gray-100">
+                                    <div className="text-center">
+                                        <div className="flex items-center justify-center gap-1 text-amber-400 mb-1">
+                                            <Star className="w-4 h-4 fill-current" />
+                                            <span className="text-gray-900 font-bold">{prof.rating}</span>
                                         </div>
+                                        <p className="text-xs text-gray-400">Avaliação</p>
                                     </div>
-                                </div>
-                            </div>
-
-                            {/* Body */}
-                            <div className="p-6">
-                                {/* Specialties */}
-                                <div className="mb-6">
-                                    <div className="text-sm font-bold text-gray-600 mb-2 flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4" />
-                                        Especialidades
-                                    </div>
-                                    <div className="flex flex-wrap gap-2">
-                                        {pro.specialties.map((spec, idx) => (
-                                            <span
-                                                key={idx}
-                                                className="px-3 py-1 bg-rose-50 text-rose-600 rounded-lg text-sm font-semibold"
-                                            >
-                                                {spec}
-                                            </span>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Performance Stats */}
-                                <div className="grid grid-cols-3 gap-4 mb-6">
-                                    <div className="bg-blue-50 rounded-xl p-3 text-center">
-                                        <Calendar className="w-5 h-5 text-blue-600 mx-auto mb-1" />
-                                        <div className="text-2xl font-black text-gray-900">{pro.appointmentsThisMonth}</div>
-                                        <div className="text-xs text-gray-600 font-semibold">Atendimentos</div>
-                                    </div>
-                                    <div className="bg-green-50 rounded-xl p-3 text-center">
-                                        <DollarSign className="w-5 h-5 text-green-600 mx-auto mb-1" />
-                                        <div className="text-2xl font-black text-green-600">
-                                            {(pro.revenueThisMonth / 1000).toFixed(1)}k
+                                    <div className="text-center border-l border-gray-100">
+                                        <div className="flex items-center justify-center gap-1 text-rose-500 mb-1">
+                                            <Calendar className="w-4 h-4" />
+                                            <span className="text-gray-900 font-bold">{prof.appointments}</span>
                                         </div>
-                                        <div className="text-xs text-gray-600 font-semibold">Receita</div>
-                                    </div>
-                                    <div className="bg-purple-50 rounded-xl p-3 text-center">
-                                        <TrendingUp className="w-5 h-5 text-purple-600 mx-auto mb-1" />
-                                        <div className="text-2xl font-black text-purple-600">{pro.avgTicket.toFixed(0)}</div>
-                                        <div className="text-xs text-gray-600 font-semibold">Ticket Médio</div>
+                                        <p className="text-xs text-gray-400">Agendamentos</p>
                                     </div>
                                 </div>
 
-                                {/* Availability Bar */}
-                                <div className="mb-6">
-                                    <div className="flex items-center justify-between text-sm mb-2">
-                                        <span className="text-gray-600 font-semibold flex items-center gap-2">
-                                            <Clock className="w-4 h-4" />
-                                            Disponibilidade
-                                        </span>
-                                        <span className="font-bold text-rose-600">{pro.availability}%</span>
-                                    </div>
-                                    <div className="w-full bg-gray-200 rounded-full h-2">
-                                        <div
-                                            className="bg-gradient-to-r from-rose-500 to-pink-500 h-2 rounded-full transition-all"
-                                            style={{ width: `${pro.availability}%` }}
-                                        ></div>
-                                    </div>
-                                </div>
-
-                                {/* Contact */}
-                                <div className="space-y-2 mb-6 text-sm">
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <Phone className="w-4 h-4" />
-                                        <span>{pro.phone}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-gray-600">
-                                        <Mail className="w-4 h-4" />
-                                        <span>{pro.email}</span>
-                                    </div>
-                                </div>
-
-                                {/* Actions */}
-                                <div className="flex gap-2">
-                                    <Button className="flex-1 bg-gradient-to-r from-rose-500 to-pink-500 text-white hover:shadow-lg">
-                                        <Calendar className="w-4 h-4 mr-2" />
-                                        Ver Agenda
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        className="border-rose-300 text-rose-600 hover:bg-rose-50"
+                                <div className="flex gap-2 mt-auto">
+                                    <button
+                                        onClick={() => handleEdit(prof)}
+                                        className="flex-1 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
                                     >
-                                        <Edit className="w-4 h-4 mr-2" />
-                                        Editar
-                                    </Button>
+                                        Editar Perfil
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteClick(prof)}
+                                        className="p-2 text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
                                 </div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-
-                {/* Top Performers */}
-                <div className="bg-white rounded-2xl shadow-xl border-2 border-rose-200 p-8">
-                    <h2 className="text-2xl font-black text-gray-900 mb-6 flex items-center gap-3">
-                        <Award className="w-7 h-7 text-yellow-500 fill-current" />
-                        Top Performers do Mês
-                    </h2>
-                    <div className="grid md:grid-cols-3 gap-6">
-                        {professionals
-                            .sort((a, b) => b.revenueThisMonth - a.revenueThisMonth)
-                            .slice(0, 3)
-                            .map((pro, idx) => (
-                                <div
-                                    key={pro.id}
-                                    className="relative bg-gradient-to-br from-rose-50 to-pink-50 rounded-xl p-6 border-2 border-rose-200"
-                                >
-                                    <div className="absolute -top-3 -right-3 w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center text-white font-black text-lg shadow-lg">
-                                        #{idx + 1}
-                                    </div>
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-rose-500 to-pink-500 flex items-center justify-center text-white font-black text-2xl">
-                                            {pro.name.charAt(0)}
-                                        </div>
-                                        <div>
-                                            <h3 className="font-bold text-gray-900">{pro.name}</h3>
-                                            <p className="text-sm text-gray-600">{pro.role}</p>
-                                        </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <div className="text-xs text-gray-600 font-semibold mb-1">Receita</div>
-                                            <div className="text-2xl font-black text-green-600">
-                                                R$ {(pro.revenueThisMonth / 1000).toFixed(1)}k
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div className="text-xs text-gray-600 font-semibold mb-1">Atendimentos</div>
-                                            <div className="text-2xl font-black text-blue-600">{pro.appointmentsThisMonth}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                    </div>
+                            </AnimatedCard>
+                        ))}
+                    </AnimatePresence>
                 </div>
             </div>
+
+            <Modal
+                isOpen={isEditModalOpen}
+                onClose={() => setIsEditModalOpen(false)}
+                title={selectedProfessional ? "Editar Profissional" : "Novo Profissional"}
+            >
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Nome Completo</label>
+                        <input {...register('name', { required: true })} className="w-full p-2 border rounded-lg" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Especialidade</label>
+                            <input {...register('specialty', { required: true })} className="w-full p-2 border rounded-lg" placeholder="Ex: Manicure" />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select {...register('status')} className="w-full p-2 border rounded-lg">
+                                <option value="Active">Disponível</option>
+                                <option value="Away">Ausente/Férias</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div className="flex justify-end pt-4">
+                        <button type="submit" className="bg-rose-600 text-white px-4 py-2 rounded-lg hover:bg-rose-700">Salvar</button>
+                    </div>
+                </form>
+            </Modal>
+
+            <ConfirmDialog
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleConfirmDelete}
+                title="Remover Profissional"
+                description="Tem certeza? Isso não pode ser desfeito."
+            />
         </div>
     );
 }
