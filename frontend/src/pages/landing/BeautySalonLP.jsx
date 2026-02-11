@@ -207,6 +207,113 @@ export default function BeautySalonLP() {
                 </div>
             </section>
 
+            {/* Benefits Section */}
+            <section id="beneficios" className="py-24 bg-rose-50/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid md:grid-cols-2 gap-16 items-center">
+                        <div className="relative">
+                            <div className="absolute inset-0 bg-gradient-to-br from-rose-200 to-pink-200 rounded-3xl transform rotate-3 blur-lg opacity-50"></div>
+                            <img
+                                src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&q=80&w=1000"
+                                alt="Dashboard Mobile"
+                                className="relative rounded-3xl shadow-2xl border-4 border-white"
+                            />
+                        </div>
+                        <div className="space-y-8">
+                            <h2 className="text-4xl font-serif text-gray-900 leading-tight">
+                                Gerencie seu salão de onde estiver
+                            </h2>
+                            <p className="text-lg text-gray-600 leading-relaxed">
+                                Com o app mobile da BeautyFlow, você tem o controle total do seu negócio na palma da mão. Visualize sua agenda, aproveite cancelamentos e acompanhe seu faturamento em tempo real.
+                            </p>
+                            <ul className="space-y-4">
+                                {[
+                                    'Acesso 24/7 de qualquer dispositivo',
+                                    'Notificações em tempo real',
+                                    'Modo Offline para não parar nunca',
+                                    'Backup automático na nuvem'
+                                ].map((item, i) => (
+                                    <li key={i} className="flex items-center gap-3 text-gray-700 font-medium">
+                                        <div className="w-6 h-6 rounded-full bg-green-100 flex items-center justify-center text-green-600">
+                                            <BadgeCheck className="w-4 h-4" />
+                                        </div>
+                                        {item}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Pricing Section */}
+            <section id="precos" className="py-24 bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-4xl lg:text-5xl font-serif text-gray-900 mb-4">
+                            Planos transparentes
+                        </h2>
+                        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+                            Escolha o plano ideal para o tamanho do seu sonho.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                name: 'Autônomo',
+                                price: '49',
+                                features: ['1 Profissional', 'Agendamento Online', 'Lembretes por E-mail', 'Relatórios Básicos']
+                            },
+                            {
+                                name: 'Salão Growth',
+                                price: '129',
+                                popular: true,
+                                features: ['Até 5 Profissionais', 'Lembretes WhatsApp', 'Gestão Financeira', 'Taxa Zero em Pagamentos']
+                            },
+                            {
+                                name: 'Empire',
+                                price: '299',
+                                features: ['Ilimitado', 'App Personalizado', 'API Aberta', 'Gerente de Contas VIP']
+                            }
+                        ].map((plan, idx) => (
+                            <div
+                                key={idx}
+                                className={`relative p-8 rounded-3xl border-2 transition-all hover:-translate-y-2 ${plan.popular ? 'border-rose-500 shadow-xl bg-rose-50/50' : 'border-gray-100 hover:border-rose-200'
+                                    }`}
+                            >
+                                {plan.popular && (
+                                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500 text-white px-4 py-1 rounded-full text-sm font-bold">
+                                        Mais Popular
+                                    </div>
+                                )}
+                                <h3 className="text-2xl font-serif text-gray-900 mb-2">{plan.name}</h3>
+                                <div className="flex items-baseline gap-1 mb-6">
+                                    <span className="text-4xl font-bold text-gray-900">R$ {plan.price}</span>
+                                    <span className="text-gray-500">/mês</span>
+                                </div>
+                                <ul className="space-y-4 mb-8">
+                                    {plan.features.map((feature, i) => (
+                                        <li key={i} className="flex items-center gap-3 text-gray-600">
+                                            <BadgeCheck className="w-5 h-5 text-rose-500" />
+                                            {feature}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Button
+                                    className={`w-full py-6 text-lg rounded-xl font-bold ${plan.popular
+                                        ? 'bg-rose-600 text-white hover:bg-rose-700'
+                                        : 'bg-white text-rose-600 border-2 border-rose-100 hover:border-rose-200'
+                                        }`}
+                                >
+                                    Começar Agora
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
             {/* CTA Section */}
             <section className="py-32 bg-gradient-to-br from-rose-600 via-pink-500 to-amber-500 text-white relative overflow-hidden">
                 <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30"></div>

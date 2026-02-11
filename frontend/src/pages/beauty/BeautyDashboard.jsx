@@ -8,275 +8,206 @@ import {
     Clock,
     Star,
     ArrowRight,
-    Plus
+    Plus,
+    CheckCircle2
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+import AnimatedCard, { AnimatedButton } from '../../components/ui/AnimatedCard';
+import { InfoTooltip } from '../../components/ui/Tooltip';
 
 /**
  * BeautyDashboard Component
  * 
  * Dashboard elegante para salão de beleza com tema rosa/dourado.
- * Mostra agendamentos do dia, receita e métricas de performance.
  */
 export default function BeautyDashboard() {
-    // Mock data - em produção viria da API
+    // Mock data
     const todayAppointments = [
         { id: 1, time: '09:00', client: 'Maria Silva', service: 'Corte + Escova', professional: 'Ana Costa', status: 'confirmed' },
         { id: 2, time: '10:30', client: 'Julia Santos', service: 'Manicure', professional: 'Carla Souza', status: 'confirmed' },
         { id: 3, time: '11:00', client: 'Fernanda Lima', service: 'Coloração', professional: 'Ana Costa', status: 'pending' },
-        { id: 4, time: '14:00', client: 'Patricia Alves', service: 'Massagem Relaxante', professional: 'Beatriz Martins', status: 'confirmed' },
-        { id: 5, time: '15:30', client: 'Camila Rocha', service: 'Unha em Gel', professional: 'Carla Souza', status: 'confirmed' },
+        { id: 4, time: '14:00', client: 'Patricia Alves', service: 'Massagem', professional: 'Beatriz Martins', status: 'confirmed' },
     ];
 
-    const stats = {
-        todayRevenue: 1240,
-        todayAppointments: 12,
-        weeklyRevenue: 8900,
-        activeClients: 247
-    };
+    const stats = [
+        {
+            label: 'Receita Hoje',
+            value: 'R$ 1.2k',
+            icon: DollarSign,
+            color: 'text-rose-400',
+            bg: 'bg-rose-500/10',
+            border: 'hover:border-rose-500/30'
+        },
+        {
+            label: 'Agendamentos',
+            value: '12',
+            icon: Calendar,
+            color: 'text-pink-400',
+            bg: 'bg-pink-500/10',
+            border: 'hover:border-pink-500/30'
+        },
+        {
+            label: 'Receita Semanal',
+            value: 'R$ 8.9k',
+            icon: TrendingUp,
+            color: 'text-purple-400',
+            bg: 'bg-purple-500/10',
+            border: 'hover:border-purple-500/30'
+        },
+        {
+            label: 'Clientes Ativos',
+            value: '247',
+            icon: Users,
+            color: 'text-amber-400',
+            bg: 'bg-amber-500/10',
+            border: 'hover:border-amber-500/30'
+        }
+    ];
 
     const topServices = [
         { name: 'Corte + Escova', count: 34, revenue: 3400 },
-        { name: 'Manicure + Pedicure', count: 28, revenue: 2240 },
-        { name: 'Coloração Completa', count: 15, revenue: 3750 },
+        { name: 'Manicure', count: 28, revenue: 2240 },
+        { name: 'Coloração', count: 15, revenue: 3750 },
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-orange-50">
+        <div className="min-h-screen bg-slate-950 text-white relative overflow-hidden p-8">
+            {/* Background Gradients */}
+            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-rose-600/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-pink-600/20 rounded-full blur-[120px] pointer-events-none" />
+
             {/* Header */}
-            <header className="bg-white border-b border-rose-100 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-500/20">
+                        <Sparkles className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black text-white tracking-tight uppercase italic relative inline-block">
+                            Dashboard
+                            <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-rose-500 to-pink-600 rounded-full" />
+                        </h1>
+                        <p className="text-slate-400 mt-2 font-medium">Gestão Premium do Salão</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <Link to="/beauty/appointments">
+                        <AnimatedButton className="bg-gradient-to-r from-rose-600 to-pink-600 text-white px-6 py-2.5 rounded-xl font-bold uppercase hover:shadow-lg hover:shadow-rose-500/25 transition-all inline-flex items-center gap-2 border border-white/10">
+                            <Plus className="w-5 h-5" />
+                            Novo Agendamento
+                        </AnimatedButton>
+                    </Link>
+                </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10">
+                {stats.map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                        <AnimatedCard
+                            key={index}
+                            delay={index * 0.1}
+                            className={`bg-slate-900/50 backdrop-blur-xl rounded-2xl p-6 border border-white/5 transition-all group ${stat.border}`}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={`w-12 h-12 ${stat.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                                    <Icon className={`w-6 h-6 ${stat.color}`} />
+                                </div>
+                            </div>
+                            <div className="text-3xl font-black text-white mb-1 tracking-tight">
+                                {stat.value}
+                            </div>
+                            <div className="text-sm text-slate-400 font-bold uppercase tracking-wide">
+                                {stat.label}
+                            </div>
+                        </AnimatedCard>
+                    );
+                })}
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-8 relative z-10">
+                {/* Schedule */}
+                <AnimatedCard delay={0.4} className="lg:col-span-2 bg-slate-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-xl">
+                    <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-rose-500 to-pink-500 rounded-2xl flex items-center justify-center">
-                                <Sparkles className="w-7 h-7 text-white" />
+                            <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-500/20">
+                                <Clock className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">
-                                    Beauty<span className="font-light text-rose-600">Flow</span>
-                                </h1>
-                                <p className="text-xs text-gray-500 font-medium">Gestão Premium de Salão</p>
+                                <h2 className="text-2xl font-black uppercase text-white tracking-tight">Agenda Hoje</h2>
+                                <p className="text-sm text-slate-400 font-medium">Próximos compromissos</p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-4">
-                            <nav className="hidden md:flex items-center space-x-6 text-sm font-medium">
-                                <Link to="/beauty/dashboard" className="text-rose-600 border-b-2 border-rose-600 pb-1">
-                                    Dashboard
-                                </Link>
-                                <Link to="/beauty/appointments" className="text-gray-600 hover:text-rose-600 transition-colors">
-                                    Agendamentos
-                                </Link>
-                                <Link to="/beauty/professionals" className="text-gray-600 hover:text-rose-600 transition-colors">
-                                    Profissionais
-                                </Link>
-                                <Link to="/beauty/services" className="text-gray-600 hover:text-rose-600 transition-colors">
-                                    Serviços
-                                </Link>
-                            </nav>
-
-                            <button className="bg-gradient-to-r from-rose-500 to-pink-500 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-rose-200 transition-all inline-flex items-center gap-2">
-                                <Plus className="w-5 h-5" />
-                                Novo Agendamento
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white rounded-2xl p-6 border-2 border-rose-100 hover:shadow-lg hover:shadow-rose-100 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center">
-                                <DollarSign className="w-6 h-6 text-rose-600" />
-                            </div>
-                            <span className="text-sm font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full">
-                                +12%
-                            </span>
-                        </div>
-                        <div className="text-3xl font-black text-gray-900 mb-1">
-                            R$ {stats.todayRevenue.toLocaleString()}
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">Receita Hoje</div>
+                        <Link to="/beauty/appointments" className="text-rose-400 font-bold text-sm hover:text-rose-300 flex items-center gap-1">
+                            Ver tudo <ArrowRight className="w-4 h-4" />
+                        </Link>
                     </div>
 
-                    <div className="bg-white rounded-2xl p-6 border-2 border-pink-100 hover:shadow-lg hover:shadow-pink-100 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center">
-                                <Calendar className="w-6 h-6 text-pink-600" />
-                            </div>
-                            <span className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                                {todayAppointments.length}/{stats.todayAppointments}
-                            </span>
-                        </div>
-                        <div className="text-3xl font-black text-gray-900 mb-1">
-                            {todayAppointments.length}
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">Agendamentos Hoje</div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-6 border-2 border-orange-100 hover:shadow-lg hover:shadow-orange-100 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
-                                <TrendingUp className="w-6 h-6 text-orange-600" />
-                            </div>
-                            <span className="text-sm font-semibold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">
-                                Semana
-                            </span>
-                        </div>
-                        <div className="text-3xl font-black text-gray-900 mb-1">
-                            R$ {(stats.weeklyRevenue / 1000).toFixed(1)}k
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">Receita Semanal</div>
-                    </div>
-
-                    <div className="bg-white rounded-2xl p-6 border-2 border-yellow-100 hover:shadow-lg hover:shadow-yellow-100 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-                                <Users className="w-6 h-6 text-yellow-600" />
-                            </div>
-                            <Star className="w-5 h-5 text-yellow-500 fill-current" />
-                        </div>
-                        <div className="text-3xl font-black text-gray-900 mb-1">
-                            {stats.activeClients}
-                        </div>
-                        <div className="text-sm text-gray-600 font-medium">Clientes Ativos</div>
-                    </div>
-                </div>
-
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* Today's Schedule */}
-                    <div className="lg:col-span-2">
-                        <div className="bg-white rounded-3xl p-8 border-2 border-rose-100 shadow-lg shadow-rose-50">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-pink-500 rounded-xl flex items-center justify-center">
-                                        <Clock className="w-5 h-5 text-white" />
-                                    </div>
-                                    <div>
-                                        <h2 className="text-2xl font-bold text-gray-900">Agenda de Hoje</h2>
-                                        <p className="text-sm text-gray-500">
-                                            {new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
-                                        </p>
-                                    </div>
+                    <div className="space-y-3">
+                        {todayAppointments.map((apt, i) => (
+                            <motion.div
+                                key={apt.id}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: i * 0.1 }}
+                                className="flex items-center gap-5 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-rose-500/30 transition-all cursor-pointer group"
+                            >
+                                <div className="text-center w-16">
+                                    <div className="text-lg font-black text-white group-hover:text-rose-400 transition-colors">{apt.time}</div>
                                 </div>
-                                <Link
-                                    to="/beauty/appointments"
-                                    className="text-rose-600 font-semibold text-sm hover:text-rose-700 inline-flex items-center gap-1"
-                                >
-                                    Ver Calendário <ArrowRight className="w-4 h-4" />
-                                </Link>
-                            </div>
 
-                            <div className="space-y-3">
-                                {todayAppointments.map((apt) => (
-                                    <div
-                                        key={apt.id}
-                                        className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-rose-50 to-pink-50 border border-rose-100 hover:shadow-md hover:scale-102 transition-all cursor-pointer"
-                                    >
-                                        <div className="flex-shrink-0 text-center">
-                                            <div className="text-lg font-black text-rose-600">{apt.time}</div>
-                                            <div className="text-xs text-gray-500 font-semibold">
-                                                {apt.status === 'confirmed' ? '✓ Confirmado' : '⏱ Pendente'}
-                                            </div>
-                                        </div>
+                                <div className="w-px h-10 bg-white/10" />
 
-                                        <div className="w-px h-12 bg-rose-200"></div>
-
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-bold text-gray-900 truncate">{apt.client}</div>
-                                            <div className="text-sm text-gray-600">{apt.service}</div>
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                Com <span className="font-semibold">{apt.professional}</span>
-                                            </div>
-                                        </div>
-
-                                        <div className="flex-shrink-0">
-                                            <span className={`w-3 h-3 rounded-full ${apt.status === 'confirmed' ? 'bg-green-400' : 'bg-yellow-400'}`}></span>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {todayAppointments.length === 0 && (
-                                <div className="text-center py-12">
-                                    <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                                    <p className="text-gray-500 font-medium">Nenhum agendamento para hoje</p>
+                                <div className="flex-1">
+                                    <div className="font-bold text-white text-lg">{apt.client}</div>
+                                    <div className="text-sm text-slate-400">{apt.service} • {apt.professional}</div>
                                 </div>
-                            )}
+
+                                <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${apt.status === 'confirmed'
+                                        ? 'bg-emerald-500/10 text-emerald-500'
+                                        : 'bg-amber-500/10 text-amber-500'
+                                    }`}>
+                                    {apt.status === 'confirmed' ? 'Confirmado' : 'Pendente'}
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                </AnimatedCard>
+
+                {/* Top Services */}
+                <AnimatedCard delay={0.5} className="lg:col-span-1 bg-slate-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-xl">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                            <Star className="w-5 h-5 text-white" />
                         </div>
+                        <h2 className="text-xl font-black uppercase text-white tracking-tight">Top Serviços</h2>
                     </div>
 
-                    {/* Top Services */}
-                    <div className="lg:col-span-1">
-                        <div className="bg-white rounded-3xl p-8 border-2 border-pink-100 shadow-lg shadow-pink-50">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center">
-                                    <Star className="w-5 h-5 text-white fill-current" />
+                    <div className="space-y-4">
+                        {topServices.map((service, idx) => (
+                            <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                    <div className="font-bold text-white">{service.name}</div>
+                                    <div className="text-xl font-black text-rose-500/50">#{idx + 1}</div>
                                 </div>
-                                <h2 className="text-2xl font-bold text-gray-900">Top Serviços</h2>
-                            </div>
-
-                            <div className="space-y-4">
-                                {topServices.map((service, idx) => (
-                                    <div key={idx} className="p-4 rounded-xl bg-gradient-to-r from-pink-50 to-rose-50 border border-pink-100">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex-1">
-                                                <div className="font-bold text-gray-900">{service.name}</div>
-                                                <div className="text-sm text-gray-600 mt-1">
-                                                    {service.count} agendamentos
-                                                </div>
-                                            </div>
-                                            <div className="text-2xl font-black text-rose-600">
-                                                #{idx + 1}
-                                            </div>
-                                        </div>
-                                        <div className="mt-3 flex items-center justify-between">
-                                            <div className="text-sm text-gray-500">Receita</div>
-                                            <div className="text-lg font-bold text-green-600">
-                                                R$ {service.revenue.toLocaleString()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            <div className="mt-6 pt-6 border-t border-pink-100">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-gray-600 font-medium">Receita Total (Top 3)</span>
-                                    <span className="text-xl font-black text-gray-900">
-                                        R$ {topServices.reduce((sum, s) => sum + s.revenue, 0).toLocaleString()}
-                                    </span>
+                                <div className="flex items-center justify-between mt-2">
+                                    <div className="text-sm text-slate-400">{service.count} agendamentos</div>
+                                    <div className="text-emerald-400 font-bold">R$ {service.revenue}</div>
                                 </div>
                             </div>
-                        </div>
+                        ))}
                     </div>
-                </div>
 
-                {/* Quick Actions */}
-                <div className="mt-8 bg-gradient-to-r from-rose-500 via-pink-500 to-rose-500 rounded-3xl p-8 text-white">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-2xl font-bold mb-2">Pronto para gerenciar seu salão?</h3>
-                            <p className="text-rose-100">Acesse todas as funcionalidades de agendamento e gestão</p>
-                        </div>
-                        <div className="flex gap-4">
-                            <Link to="/beauty/appointments">
-                                <button className="bg-white text-rose-600 px-8 py-3 rounded-xl font-bold hover:shadow-xl transition-all">
-                                    Ver Calendário
-                                </button>
-                            </Link>
-                            <Link to="/beauty/services">
-                                <button className="border-2 border-white text-white px-8 py-3 rounded-xl font-bold hover:bg-white hover:text-rose-600 transition-all">
-                                    Gerenciar Serviços
-                                </button>
-                            </Link>
-                        </div>
+                    <div className="mt-8 pt-6 border-t border-white/10">
+                        <Link to="/beauty/services" className="block w-full text-center py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold uppercase tracking-wide transition-colors">
+                            Gerenciar Catálogo
+                        </Link>
                     </div>
-                </div>
-            </main>
+                </AnimatedCard>
+            </div>
         </div>
     );
 }

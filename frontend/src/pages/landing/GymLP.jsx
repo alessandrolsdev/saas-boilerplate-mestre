@@ -210,6 +210,123 @@ export default function GymLP() {
                 </div>
             </section>
 
+            {/* Pricing Section */}
+            <section id="pricing" className="py-24 bg-zinc-950 border-y border-zinc-900">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="text-center mb-16">
+                        <h2 className="text-5xl font-black uppercase mb-4 tracking-tight text-white">
+                            Planos de Dominação
+                        </h2>
+                        <p className="text-xl text-gray-400 font-medium max-w-2xl mx-auto">
+                            Escalabilidade total para academias de qualquer tamanho.
+                        </p>
+                    </div>
+
+                    <div className="grid md:grid-cols-3 gap-8">
+                        {[
+                            {
+                                name: 'Box',
+                                price: '199',
+                                features: ['Até 200 Alunos', 'App do Aluno', 'Controle de Acesso QR', 'Suporte por Email']
+                            },
+                            {
+                                name: 'Studio',
+                                price: '399',
+                                popular: true,
+                                features: ['Até 800 Alunos', 'Biometria/Facial', 'Gestão Financeira', 'CRM de Vendas']
+                            },
+                            {
+                                name: 'Network',
+                                price: '899',
+                                features: ['Ilimitado', 'Múltiplas Unidades', 'API Completa', 'Gerente Dedicado']
+                            }
+                        ].map((plan, idx) => (
+                            <div
+                                key={idx}
+                                className={`relative p-8 rounded-2xl border-2 transition-all hover:-translate-y-2 ${plan.popular ? 'border-orange-500 bg-zinc-900' : 'border-zinc-800 bg-zinc-900/50 hover:border-orange-500/50'
+                                    }`}
+                            >
+                                {plan.popular && (
+                                    <div className="absolute top-0 right-0 bg-orange-500 text-white px-4 py-1 rounded-bl-xl rounded-tr-xl text-sm font-black uppercase">
+                                        Recomendado
+                                    </div>
+                                )}
+                                <h3 className="text-2xl font-black uppercase text-white mb-2">{plan.name}</h3>
+                                <div className="flex items-baseline gap-1 mb-6">
+                                    <span className="text-4xl font-black text-white">R$ {plan.price}</span>
+                                    <span className="text-gray-500 font-bold">/mês</span>
+                                </div>
+                                <ul className="space-y-4 mb-8">
+                                    {plan.features.map((feature, i) => (
+                                        <li key={i} className="flex items-center gap-3 text-gray-400 font-medium">
+                                            <Target className="w-5 h-5 text-orange-500" />
+                                            {feature}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Button
+                                    className={`w-full py-6 text-lg rounded-lg font-black uppercase ${plan.popular
+                                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:shadow-lg hover:shadow-orange-500/20'
+                                        : 'bg-zinc-800 text-white hover:bg-zinc-700'
+                                        }`}
+                                >
+                                    Assinar Agora
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            {/* Contact Section */}
+            <section id="contact" className="py-24 bg-zinc-900">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="grid lg:grid-cols-2 gap-16 items-center">
+                        <div>
+                            <h2 className="text-4xl font-black uppercase mb-6 tracking-tight text-white">
+                                Fale com um Especialista
+                            </h2>
+                            <p className="text-xl text-gray-400 mb-8">
+                                Nossa equipe é formada por ex-donos de academia. Entendemos sua dor e temos a solução.
+                            </p>
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-4 p-4 bg-zinc-950 rounded-xl border border-zinc-800">
+                                    <div className="w-12 h-12 bg-orange-500/10 flex items-center justify-center rounded-full text-orange-500">
+                                        <Users className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <div className="text-white font-bold">Comercial</div>
+                                        <div className="text-gray-400">vendas@gymmaster.com</div>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-4 p-4 bg-zinc-950 rounded-xl border border-zinc-800">
+                                    <div className="w-12 h-12 bg-orange-500/10 flex items-center justify-center rounded-full text-orange-500">
+                                        <Zap className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <div className="text-white font-bold">Suporte 24/7</div>
+                                        <div className="text-gray-400">suporte@gymmaster.com</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="bg-zinc-950 p-8 rounded-2xl border border-zinc-800">
+                            <form className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <input type="text" placeholder="Nome" className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-orange-500 outline-none transition-colors" />
+                                    <input type="text" placeholder="Academia" className="bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-orange-500 outline-none transition-colors" />
+                                </div>
+                                <input type="email" placeholder="Email Comercial" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-orange-500 outline-none transition-colors" />
+                                <textarea placeholder="Mensagem" rows="4" className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3 text-white focus:border-orange-500 outline-none transition-colors"></textarea>
+                                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white font-black uppercase py-6 rounded-lg">
+                                    Enviar Mensagem
+                                </Button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             {/* CTA Section */}
             <section className="py-32 bg-gradient-to-r from-orange-600 via-red-500 to-orange-600 relative overflow-hidden">
                 <div className="absolute inset-0">

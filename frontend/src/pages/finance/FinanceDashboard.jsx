@@ -5,13 +5,18 @@ import {
     Users,
     CreditCard,
     ArrowUpRight,
-    ArrowDownRight,
     Calendar,
     AlertCircle,
     CheckCircle2,
     Plus,
-    FileText
+    FileText,
+    Activity,
+    Wallet
 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+
+import AnimatedCard, { AnimatedButton } from '../../components/ui/AnimatedCard';
+import { InfoTooltip } from '../../components/ui/Tooltip';
 
 /**
  * FinanceDashboard Component
@@ -33,11 +38,11 @@ export default function FinanceDashboard() {
     };
 
     const recentCharges = [
-        { id: 1, client: 'Tech Solutions LTDA', amount: 890, status: 'paid', date: '2025-02-09', plan: 'Enterprise' },
-        { id: 2, client: 'Startup Innovate', amount: 450, status: 'pending', date: '2025-02-09', plan: 'Professional' },
-        { id: 3, client: 'Marketing Pro', amount: 290, status: 'paid', date: '2025-02-08', plan: 'Basic' },
-        { id: 4, client: 'Design Studio', amount: 650, status: 'paid', date: '2025-02-08', plan: 'Professional' },
-        { id: 5, client: 'Consulting Group', amount: 1200, status: 'overdue', date: '2025-02-05', plan: 'Enterprise' },
+        { id: 1, client: 'Tech Solutions LTDA', amount: 890, status: 'paid', date: 'Hoje, 10:30', plan: 'Enterprise' },
+        { id: 2, client: 'Startup Innovate', amount: 450, status: 'pending', date: 'Hoje, 09:15', plan: 'Professional' },
+        { id: 3, client: 'Marketing Pro', amount: 290, status: 'paid', date: 'Ontem, 16:45', plan: 'Basic' },
+        { id: 4, client: 'Design Studio', amount: 650, status: 'paid', date: 'Ontem, 14:20', plan: 'Professional' },
+        { id: 5, client: 'Consulting Group', amount: 1200, status: 'overdue', date: '08 Fev', plan: 'Enterprise' },
     ];
 
     const topClients = [
@@ -46,268 +51,205 @@ export default function FinanceDashboard() {
         { name: 'Enterprise Corp', mrr: 750, ltv: 18000 },
     ];
 
-    const mrrHistory = [
-        { month: 'Set', value: 18200 },
-        { month: 'Out', value: 19500 },
-        { month: 'Nov', value: 21300 },
-        { month: 'Dez', value: 22100 },
-        { month: 'Jan', value: 23800 },
-        { month: 'Fev', value: 24850 },
+    const financialStats = [
+        {
+            label: 'MRR (Recorrente)',
+            value: `R$ ${(stats.mrr / 1000).toFixed(1)}k`,
+            icon: TrendingUp,
+            color: 'text-indigo-400',
+            bg: 'bg-indigo-500/10',
+            border: 'hover:border-indigo-500/30',
+            trend: `+${stats.mrrGrowth}% este mês`
+        },
+        {
+            label: 'Receita Total',
+            value: `R$ ${(stats.totalRevenue / 1000).toFixed(1)}k`,
+            icon: Wallet,
+            color: 'text-emerald-400',
+            bg: 'bg-emerald-500/10',
+            border: 'hover:border-emerald-500/30',
+            trend: 'Acumulado anual'
+        },
+        {
+            label: 'Clientes Ativos',
+            value: `${stats.activeClients}/${stats.totalClients}`,
+            icon: Users,
+            color: 'text-blue-400',
+            bg: 'bg-blue-500/10',
+            border: 'hover:border-blue-500/30',
+            trend: 'Taxa de Ativação: 87%'
+        },
+        {
+            label: 'Pendentes',
+            value: stats.pendingCharges,
+            icon: AlertCircle,
+            color: 'text-yellow-400',
+            bg: 'bg-yellow-500/10',
+            border: 'hover:border-yellow-500/30',
+            trend: 'Aguardando pagamento'
+        }
     ];
 
-    const maxMrr = Math.max(...mrrHistory.map(m => m.value));
-
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white">
+        <div className="min-h-screen bg-zinc-950 text-white relative overflow-hidden p-8">
+            {/* Background Gradients */}
+            <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-purple-600/20 rounded-full blur-[120px] pointer-events-none" />
+
             {/* Header */}
-            <header className="bg-slate-900/50 backdrop-blur-lg border-b border-indigo-500/20">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-20">
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
+                <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <DollarSign className="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                        <h1 className="text-4xl font-black text-white tracking-tight uppercase italic relative inline-block">
+                            Financeiro
+                            <span className="absolute -bottom-2 left-0 w-1/2 h-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full" />
+                        </h1>
+                        <p className="text-zinc-400 mt-2 font-medium">Gestão de Receita e Cobranças</p>
+                    </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                    <Link to="/finance/charges">
+                        <button className="px-5 py-2.5 rounded-xl bg-zinc-900 border border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800 transition-all font-bold uppercase text-sm flex items-center gap-2">
+                            <FileText className="w-4 h-4" />
+                            Ver Cobranças
+                        </button>
+                    </Link>
+                    <Link to="/finance/clients">
+                        <AnimatedButton className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-6 py-2.5 rounded-xl font-black uppercase hover:shadow-lg hover:shadow-indigo-500/25 transition-all inline-flex items-center gap-2 border border-white/10">
+                            <Plus className="w-5 h-5" />
+                            Novo Cliente
+                        </AnimatedButton>
+                    </Link>
+                </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10">
+                {financialStats.map((stat, index) => {
+                    const Icon = stat.icon;
+                    return (
+                        <AnimatedCard
+                            key={index}
+                            delay={index * 0.1}
+                            className={`bg-zinc-900/50 backdrop-blur-xl rounded-2xl p-6 border border-white/5 transition-all group ${stat.border}`}
+                        >
+                            <div className="flex items-center justify-between mb-4">
+                                <div className={`w-12 h-12 ${stat.bg} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                                    <Icon className={`w-6 h-6 ${stat.color}`} />
+                                </div>
+                                <InfoTooltip content={stat.trend} />
+                            </div>
+                            <div className="text-3xl font-black text-white mb-1 tracking-tight">
+                                {stat.value}
+                            </div>
+                            <div className="text-sm text-zinc-400 font-bold uppercase tracking-wide flex items-center gap-2">
+                                {stat.label}
+                            </div>
+                        </AnimatedCard>
+                    );
+                })}
+            </div>
+
+            <div className="grid lg:grid-cols-3 gap-8 relative z-10">
+                {/* Recent Activity / Charges */}
+                <AnimatedCard delay={0.4} className="lg:col-span-2 bg-zinc-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-xl">
+                    <div className="flex items-center justify-between mb-8">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-2xl flex items-center justify-center">
-                                <DollarSign className="w-7 h-7 text-white" />
+                            <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                <Activity className="w-5 h-5 text-white" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-bold">
-                                    SaaS <span className="font-light text-indigo-400">Financeiro</span>
-                                </h1>
-                                <p className="text-xs text-gray-400 font-medium">Gestão de Receita Recorrente</p>
+                                <h2 className="text-2xl font-black uppercase text-white tracking-tight">Atividade Recente</h2>
+                                <p className="text-sm text-zinc-400 font-bold">Últimas transações e cobranças</p>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="flex items-center gap-4">
-                            <nav className="hidden md:flex items-center space-x-6 text-sm font-semibold">
-                                <Link to="/dashboard" className="text-indigo-400 border-b-2 border-indigo-400 pb-1">
-                                    Dashboard
-                                </Link>
-                                <Link to="/clients" className="text-gray-400 hover:text-indigo-400 transition-colors">
-                                    Clientes
-                                </Link>
-                                <Link to="/finance" className="text-gray-400 hover:text-indigo-400 transition-colors">
-                                    Cobranças
-                                </Link>
-                            </nav>
+                    <div className="space-y-3">
+                        <AnimatePresence>
+                            {recentCharges.map((charge, i) => (
+                                <motion.div
+                                    key={charge.id}
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    transition={{ delay: i * 0.1 }}
+                                    className="flex items-center gap-4 p-4 rounded-2xl bg-zinc-950/30 border border-white/5 hover:bg-zinc-900/50 hover:border-indigo-500/20 transition-all group"
+                                >
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-zinc-800 to-zinc-900 flex items-center justify-center border-2 border-zinc-800 group-hover:border-indigo-500/50 transition-colors">
+                                        <CreditCard className="w-4 h-4 text-zinc-400 group-hover:text-indigo-400" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center justify-between">
+                                            <div className="font-bold text-white truncate">{charge.client}</div>
+                                            <div className="text-sm font-black text-white">R$ {charge.amount}</div>
+                                        </div>
+                                        <div className="flex items-center justify-between mt-1">
+                                            <div className="text-xs text-zinc-500 font-bold uppercase">
+                                                {charge.plan} • {charge.date}
+                                            </div>
+                                            <div>
+                                                {charge.status === 'paid' && (
+                                                    <span className="text-xs font-black uppercase text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Pago</span>
+                                                )}
+                                                {charge.status === 'pending' && (
+                                                    <span className="text-xs font-black uppercase text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20">Pendente</span>
+                                                )}
+                                                {charge.status === 'overdue' && (
+                                                    <span className="text-xs font-black uppercase text-red-500 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">Atrasado</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                </AnimatedCard>
 
-                            <button className="bg-gradient-to-r from-indigo-500 to-blue-500 text-white px-6 py-2.5 rounded-xl font-semibold hover:shadow-lg hover:shadow-indigo-500/50 transition-all inline-flex items-center gap-2">
-                                <Plus className="w-5 h-5" />
-                                Nova Cobrança
+                {/* Top Clients */}
+                <AnimatedCard delay={0.5} className="lg:col-span-1 bg-zinc-900/50 backdrop-blur-xl rounded-3xl p-8 border border-white/5 shadow-xl">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-lg shadow-purple-500/20">
+                            <Users className="w-5 h-5 text-white" />
+                        </div>
+                        <h2 className="text-xl font-black uppercase text-white tracking-tight">Top Clientes</h2>
+                    </div>
+
+                    <div className="space-y-4">
+                        {topClients.map((client, idx) => (
+                            <div key={idx} className="relative p-4 rounded-xl bg-zinc-950/30 border border-white/5 group hover:border-purple-500/30 transition-all">
+                                <div className="flex items-start justify-between mb-2">
+                                    <div className="flex-1">
+                                        <div className="font-bold text-white text-sm mb-1">{client.name}</div>
+                                        <div className="text-xs text-zinc-500 font-bold uppercase">MRR: R$ {client.mrr}</div>
+                                    </div>
+                                    <div className="text-2xl font-black text-purple-500/10 group-hover:text-purple-500/20 transition-colors">
+                                        #{idx + 1}
+                                    </div>
+                                </div>
+                                <div className="mt-2 pt-2 border-t border-white/5 flex items-center justify-between">
+                                    <div className="text-xs text-zinc-600 font-bold uppercase">LTV Estimado</div>
+                                    <div className="text-sm font-black text-emerald-400">
+                                        R$ {(client.ltv / 1000).toFixed(1)}k
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="mt-8 pt-8 border-t border-white/10">
+                        <Link to="/finance/clients">
+                            <button className="w-full py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-bold uppercase tracking-wide transition-colors flex items-center justify-center gap-2">
+                                Gerenciar Clientes <ArrowUpRight className="w-4 h-4" />
                             </button>
-                        </div>
+                        </Link>
                     </div>
-                </div>
-            </header>
-
-            {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border-2 border-indigo-500/30 hover:border-indigo-500/60 hover:shadow-xl hover:shadow-indigo-500/20 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
-                                <TrendingUp className="w-6 h-6 text-indigo-400" />
-                            </div>
-                            <span className="text-sm font-bold text-green-400 bg-green-500/20 px-3 py-1 rounded-full inline-flex items-center gap-1">
-                                <ArrowUpRight className="w-3 h-3" />
-                                +{stats.mrrGrowth}%
-                            </span>
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            R$ {(stats.mrr / 1000).toFixed(1)}k
-                        </div>
-                        <div className="text-sm text-gray-400 font-medium">MRR (Receita Recorrente)</div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border-2 border-blue-500/30 hover:border-blue-500/60 hover:shadow-xl hover:shadow-blue-500/20 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-blue-500/20 rounded-xl flex items-center justify-center">
-                                <Users className="w-6 h-6 text-blue-400" />
-                            </div>
-                            <span className="text-xs font-semibold text-blue-300 uppercase">{stats.activeClients}/{stats.totalClients}</span>
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {stats.totalClients}
-                        </div>
-                        <div className="text-sm text-gray-400 font-medium">Clientes Totais</div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border-2 border-green-500/30 hover:border-green-500/60 hover:shadow-xl hover:shadow-green-500/20 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
-                                <DollarSign className="w-6 h-6 text-green-400" />
-                            </div>
-                            <CheckCircle2 className="w-5 h-5 text-green-400" />
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {stats.paidThisMonth}
-                        </div>
-                        <div className="text-sm text-gray-400 font-medium">Pagos Este Mês</div>
-                    </div>
-
-                    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl p-6 border-2 border-yellow-500/30 hover:border-yellow-500/60 hover:shadow-xl hover:shadow-yellow-500/20 transition-all">
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-12 h-12 bg-yellow-500/20 rounded-xl flex items-center justify-center">
-                                <AlertCircle className="w-6 h-6 text-yellow-400" />
-                            </div>
-                            <Calendar className="w-5 h-5 text-yellow-400" />
-                        </div>
-                        <div className="text-3xl font-bold text-white mb-1">
-                            {stats.pendingCharges}
-                        </div>
-                        <div className="text-sm text-gray-400 font-medium">Cobranças Pendentes</div>
-                    </div>
-                </div>
-
-                <div className="grid lg:grid-cols-3 gap-8">
-                    {/* MRR Growth Chart */}
-                    <div className="lg:col-span-2">
-                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border-2 border-indigo-500/20">
-                            <div className="flex items-center justify-between mb-8">
-                                <div>
-                                    <h2 className="text-2xl font-bold text-white mb-1">Crescimento MRR</h2>
-                                    <p className="text-sm text-gray-400">Últimos 6 meses</p>
-                                </div>
-                                <div className="flex items-center gap-2 text-green-400 font-semibold text-sm bg-green-500/10 px-4 py-2 rounded-lg">
-                                    <ArrowUpRight className="w-4 h-4" />
-                                    +{stats.mrrGrowth}% este mês
-                                </div>
-                            </div>
-
-                            <div className="space-y-4">
-                                {mrrHistory.map((item, idx) => (
-                                    <div key={idx} className="space-y-2">
-                                        <div className="flex items-center justify-between text-sm">
-                                            <span className="font-semibold text-gray-300">{item.month}</span>
-                                            <span className="font-bold text-white">R$ {(item.value / 1000).toFixed(1)}k</span>
-                                        </div>
-                                        <div className="w-full bg-slate-700 rounded-full h-3 overflow-hidden">
-                                            <div
-                                                className="h-full bg-gradient-to-r from-indigo-500 to-blue-500 transition-all rounded-full"
-                                                style={{ width: `${(item.value / maxMrr) * 100}%` }}
-                                            ></div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Recent Charges */}
-                        <div className="mt-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border-2 border-blue-500/20">
-                            <div className="flex items-center justify-between mb-6">
-                                <h2 className="text-2xl font-bold text-white">Cobranças Recentes</h2>
-                                <Link to="/finance" className="text-blue-400 font-semibold text-sm hover:text-blue-300">
-                                    Ver Todas
-                                </Link>
-                            </div>
-
-                            <div className="space-y-3">
-                                {recentCharges.map((charge) => (
-                                    <div
-                                        key={charge.id}
-                                        className="flex items-center gap-4 p-4 rounded-xl bg-slate-700/30 border border-slate-600/50 hover:border-blue-500/50 transition-all"
-                                    >
-                                        <div className="flex-1 min-w-0">
-                                            <div className="font-semibold text-white truncate">{charge.client}</div>
-                                            <div className="text-sm text-gray-400">{charge.plan} • {charge.date}</div>
-                                        </div>
-                                        <div className="text-lg font-bold text-white">
-                                            R$ {charge.amount}
-                                        </div>
-                                        <div>
-                                            {charge.status === 'paid' && (
-                                                <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-bold">
-                                                    Pago
-                                                </span>
-                                            )}
-                                            {charge.status === 'pending' && (
-                                                <span className="px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full text-xs font-bold">
-                                                    Pendente
-                                                </span>
-                                            )}
-                                            {charge.status === 'overdue' && (
-                                                <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-bold">
-                                                    Atrasado
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Top Clients */}
-                    <div className="lg:col-span-1 space-y-6">
-                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border-2 border-purple-500/20">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                                    <Users className="w-5 h-5 text-white" />
-                                </div>
-                                <h2 className="text-xl font-bold text-white">Top Clientes</h2>
-                            </div>
-
-                            <div className="space-y-4">
-                                {topClients.map((client, idx) => (
-                                    <div key={idx} className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                                        <div className="flex items-start justify-between mb-2">
-                                            <div className="flex-1">
-                                                <div className="font-semibold text-white text-sm mb-1">{client.name}</div>
-                                                <div className="text-xs text-gray-400">MRR: R$ {client.mrr}</div>
-                                            </div>
-                                            <div className="text-2xl font-black text-purple-400">#{idx + 1}</div>
-                                        </div>
-                                        <div className="mt-3 pt-3 border-t border-purple-500/20 flex items-center justify-between">
-                                            <div className="text-xs text-gray-400">LTV</div>
-                                            <div className="text-lg font-bold text-green-400">
-                                                R$ {(client.ltv / 1000).toFixed(1)}k
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Quick Stats */}
-                        <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-8 border-2 border-emerald-500/20">
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-400 font-medium">Receita Total</span>
-                                    <span className="text-2xl font-bold text-white">
-                                        R$ {(stats.totalRevenue / 1000).toFixed(1)}k
-                                    </span>
-                                </div>
-                                <div className="w-full h-px bg-slate-700"></div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-sm text-gray-400 font-medium">Ticket Médio</span>
-                                    <span className="text-2xl font-bold text-emerald-400">R$ {stats.avgTicket}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Quick Actions */}
-                <div className="mt-8 bg-gradient-to-r from-indigo-500 via-blue-500 to-indigo-500 rounded-3xl p-8">
-                    <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                        <div>
-                            <h3 className="text-2xl font-bold mb-2">Gerencie suas finanças com inteligência</h3>
-                            <p className="text-indigo-100">Controle total de clientes, cobranças e receita recorrente</p>
-                        </div>
-                        <div className="flex gap-4">
-                            <Link to="/clients">
-                                <button className="bg-white text-indigo-600 px-8 py-3 rounded-xl font-bold hover:shadow-xl transition-all">
-                                    Ver Clientes
-                                </button>
-                            </Link>
-                            <Link to="/finance">
-                                <button className="border-2 border-white text-white px-8 py-3 rounded-xl font-bold hover:bg-white hover:text-indigo-600 transition-all inline-flex items-center gap-2">
-                                    <FileText className="w-5 h-5" />
-                                    Cobranças
-                                </button>
-                            </Link>
-                        </div>
-                    </div>
-                </div>
-            </main>
+                </AnimatedCard>
+            </div>
         </div>
     );
 }

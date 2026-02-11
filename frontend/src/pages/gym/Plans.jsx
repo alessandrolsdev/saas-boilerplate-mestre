@@ -10,7 +10,8 @@ import {
     Calendar,
     TrendingUp,
     Sparkles,
-    Star
+    Star,
+    ArrowRight
 } from 'lucide-react';
 import { FadeInWhenVisible, StaggerContainer, StaggerItem } from '../../components/layout/PageTransition';
 
@@ -28,11 +29,11 @@ export default function Plans() {
             name: 'Básico',
             tagline: 'Para iniciantes',
             icon: Dumbbell,
-            color: 'from-slate-600 to-gray-700',
-            borderColor: 'border-slate-400',
+            color: 'from-zinc-700 to-zinc-900',
+            borderColor: 'border-zinc-700',
             price: {
                 monthly: 79,
-                annual: 790 // ~67/mês
+                annual: 790
             },
             features: [
                 { name: 'Acesso ilimitado à academia', included: true },
@@ -56,7 +57,7 @@ export default function Plans() {
             borderColor: 'border-orange-500',
             price: {
                 monthly: 149,
-                annual: 1490 // ~124/mês
+                annual: 1490
             },
             features: [
                 { name: 'Acesso ilimitado à academia', included: true },
@@ -80,7 +81,7 @@ export default function Plans() {
             borderColor: 'border-yellow-500',
             price: {
                 monthly: 299,
-                annual: 2990 // ~249/mês
+                annual: 2990
             },
             features: [
                 { name: 'Acesso ilimitado à academia', included: true },
@@ -106,202 +107,180 @@ export default function Plans() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-950 via-orange-950 to-slate-950 py-16 px-6">
-            {/* Header */}
-            <FadeInWhenVisible>
-                <div className="max-w-7xl mx-auto text-center mb-12">
-                    <Link
-                        to="/gym/dashboard"
-                        className="inline-block mb-6 text-orange-400 hover:text-orange-300 transition-colors font-semibold"
-                    >
-                        ← Voltar ao Dashboard
-                    </Link>
-                    <h1 className="text-5xl md:text-6xl font-black text-white mb-4">
-                        Escolha Seu Plano
-                    </h1>
-                    <p className="text-xl text-slate-300 max-w-2xl mx-auto">
-                        Transforme seu corpo e sua vida. Escolha o plano ideal para seus objetivos.
-                    </p>
+        <div className="min-h-screen bg-zinc-950 px-6 py-20 relative overflow-hidden">
+            {/* Background Gradients */}
+            <div className="absolute top-0 left-0 w-[800px] h-[800px] bg-orange-600/10 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-0 right-0 w-[800px] h-[800px] bg-red-600/10 rounded-full blur-[120px] pointer-events-none" />
 
-                    {/* Billing Toggle */}
-                    <div className="mt-8 inline-flex items-center gap-4 bg-slate-900/50 border-2 border-orange-500/30 rounded-full p-2">
-                        <button
-                            onClick={() => setBillingCycle('monthly')}
-                            className={`px-6 py-3 rounded-full font-bold transition-all ${billingCycle === 'monthly'
-                                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white'
-                                : 'text-slate-400 hover:text-white'
-                                }`}
+            <div className="relative z-10">
+                {/* Header */}
+                <FadeInWhenVisible>
+                    <div className="max-w-7xl mx-auto text-center mb-16">
+                        <Link
+                            to="/gym/dashboard"
+                            className="inline-flex items-center gap-2 mb-8 text-orange-400 hover:text-orange-300 transition-colors font-bold uppercase tracking-wide text-sm"
                         >
-                            Mensal
-                        </button>
-                        <button
-                            onClick={() => setBillingCycle('annual')}
-                            className={`px-6 py-3 rounded-full font-bold transition-all flex items-center gap-2 ${billingCycle === 'annual'
-                                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white'
-                                : 'text-slate-400 hover:text-white'
-                                }`}
-                        >
-                            Anual
-                            <span className="text-xs bg-green-500 text-white px-2 py-1 rounded-full">
-                                -16%
-                            </span>
-                        </button>
-                    </div>
-                </div>
-            </FadeInWhenVisible>
+                            ← Voltar ao Dashboard
+                        </Link>
+                        <h1 className="text-5xl md:text-7xl font-black text-white mb-6 uppercase italic tracking-tighter">
+                            Escolha Seu <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-500 to-red-600">Poder</span>
+                        </h1>
+                        <p className="text-xl text-zinc-400 max-w-2xl mx-auto font-medium">
+                            Desbloqueie seu potencial máximo com planos feitos para cada estágio da sua jornada.
+                        </p>
 
-            {/* Plans Grid */}
-            <StaggerContainer>
-                <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8">
-                    {plans.map((plan) => {
-                        const Icon = plan.icon;
-                        const pricePerMonth = billingCycle === 'annual'
-                            ? (plan.price.annual / 12).toFixed(0)
-                            : plan.price.monthly;
-                        const savings = calculateSavings(plan);
-
-                        return (
-                            <StaggerItem key={plan.id}>
-                                <motion.div
-                                    whileHover={{ scale: 1.02, y: -10 }}
-                                    transition={{ type: 'spring', stiffness: 300 }}
-                                    className={`relative bg-gradient-to-br from-slate-900 to-slate-950 rounded-3xl border-2 ${plan.popular ? 'border-orange-500 shadow-2xl shadow-orange-500/20' : plan.borderColor
-                                        } overflow-hidden ${plan.popular ? 'md:scale-105' : ''}`}
-                                >
-                                    {/* Popular Badge */}
-                                    {plan.popular && (
-                                        <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-2 rounded-bl-2xl font-bold text-sm flex items-center gap-2">
-                                            <Zap className="w-4 h-4" />
-                                            MAIS POPULAR
-                                        </div>
-                                    )}
-
-                                    {/* Header */}
-                                    <div className={`bg-gradient-to-r ${plan.color} p-8 text-white`}>
-                                        <div className="flex items-center gap-3 mb-4">
-                                            <div className="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
-                                                <Icon className="w-8 h-8" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-2xl font-black">{plan.name}</h3>
-                                                <p className="text-white/80 text-sm">{plan.tagline}</p>
-                                            </div>
-                                        </div>
-
-                                        {/* Price */}
-                                        <div className="mt-6">
-                                            <div className="flex items-baseline gap-2">
-                                                <span className="text-5xl font-black">R$ {pricePerMonth}</span>
-                                                <span className="text-white/80">/mês</span>
-                                            </div>
-                                            {billingCycle === 'annual' && (
-                                                <div className="mt-2 text-sm">
-                                                    <span className="text-white/80">Cobrança anual: </span>
-                                                    <span className="font-bold">R$ {plan.price.annual}</span>
-                                                    <span className="ml-2 text-green-300">
-                                                        (economize {savings.percentage}%)
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Features */}
-                                    <div className="p-8">
-                                        <div className="space-y-4 mb-8">
-                                            {plan.features.map((feature, i) => (
-                                                <div key={i} className="flex items-start gap-3">
-                                                    {feature.included ? (
-                                                        <div className="p-1 bg-green-500/20 rounded-full">
-                                                            <Check className="w-4 h-4 text-green-400" />
-                                                        </div>
-                                                    ) : (
-                                                        <div className="p-1 bg-slate-700/50 rounded-full">
-                                                            <X className="w-4 h-4 text-slate-600" />
-                                                        </div>
-                                                    )}
-                                                    <span className={
-                                                        feature.included ? 'text-white' : 'text-slate-600 line-through'
-                                                    }>
-                                                        {feature.name}
-                                                    </span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        {/* CTA */}
-                                        <motion.button
-                                            whileHover={{ scale: 1.05 }}
-                                            whileTap={{ scale: 0.95 }}
-                                            className={`w-full py-4 rounded-xl font-bold text-lg transition-all ${plan.popular
-                                                ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30'
-                                                : 'bg-slate-800 text-white hover:bg-slate-700 border-2 border-slate-700'
-                                                }`}
-                                        >
-                                            {plan.cta}
-                                        </motion.button>
-                                    </div>
-                                </motion.div>
-                            </StaggerItem>
-                        );
-                    })}
-                </div>
-            </StaggerContainer>
-
-            {/* Benefits Section */}
-            <FadeInWhenVisible delay={0.3}>
-                <div className="max-w-7xl mx-auto mt-20">
-                    <div className="bg-gradient-to-br from-slate-900 to-slate-950 border-2 border-orange-500/30 rounded-3xl p-12">
-                        <h2 className="text-3xl font-black text-white text-center mb-12">
-                            Por que escolher GymMaster?
-                        </h2>
-                        <div className="grid md:grid-cols-4 gap-8">
-                            {[
-                                { icon: Users, title: 'Comunidade Ativa', desc: 'Faça parte de uma comunidade fitness engajada' },
-                                { icon: Calendar, title: 'Flexibilidade Total', desc: 'Treine no seu horário, sem restrições' },
-                                { icon: TrendingUp, title: 'Resultados Comprovados', desc: '95% dos alunos atingem suas metas' },
-                                { icon: Sparkles, title: 'Equipamentos Premium', desc: 'Maquinário de última geração' }
-                            ].map((benefit, i) => {
-                                const BenefitIcon = benefit.icon;
-                                return (
-                                    <div key={i} className="text-center">
-                                        <div className="inline-block p-4 bg-orange-500/20 rounded-xl mb-4">
-                                            <BenefitIcon className="w-8 h-8 text-orange-400" />
-                                        </div>
-                                        <h3 className="text-lg font-bold text-white mb-2">{benefit.title}</h3>
-                                        <p className="text-slate-400 text-sm">{benefit.desc}</p>
-                                    </div>
-                                );
-                            })}
+                        {/* Billing Toggle */}
+                        <div className="mt-10 inline-flex items-center gap-1 bg-zinc-900 border border-white/10 rounded-full p-1.5 shadow-xl">
+                            <button
+                                onClick={() => setBillingCycle('monthly')}
+                                className={`px-8 py-3 rounded-full font-bold transition-all uppercase text-sm ${billingCycle === 'monthly'
+                                    ? 'bg-zinc-800 text-white shadow-lg'
+                                    : 'text-zinc-500 hover:text-white'
+                                    }`}
+                            >
+                                Mensal
+                            </button>
+                            <button
+                                onClick={() => setBillingCycle('annual')}
+                                className={`px-8 py-3 rounded-full font-bold transition-all uppercase text-sm flex items-center gap-2 ${billingCycle === 'annual'
+                                    ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg'
+                                    : 'text-zinc-500 hover:text-white'
+                                    }`}
+                            >
+                                Anual
+                                <span className="text-[10px] bg-white text-orange-600 px-2 py-0.5 rounded-full font-black">
+                                    -16%
+                                </span>
+                            </button>
                         </div>
                     </div>
-                </div>
-            </FadeInWhenVisible>
+                </FadeInWhenVisible>
 
-            {/* FAQ Teaser */}
-            <FadeInWhenVisible delay={0.4}>
-                <div className="max-w-4xl mx-auto mt-16 text-center">
-                    <p className="text-slate-400 mb-4">
-                        Ainda tem dúvidas? Entre em contato conosco ou visite uma de nossas unidades.
-                    </p>
-                    <div className="flex justify-center gap-4">
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-8 py-3 bg-orange-500 text-white rounded-xl font-bold hover:bg-orange-600 transition-colors"
-                        >
-                            Falar com Consultor
-                        </motion.button>
-                        <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            className="px-8 py-3 border-2 border-orange-500 text-orange-400 rounded-xl font-bold hover:bg-orange-500/10 transition-colors"
-                        >
-                            Agendar Visita
-                        </motion.button>
+                {/* Plans Grid */}
+                <StaggerContainer>
+                    <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-8 items-start">
+                        {plans.map((plan) => {
+                            const Icon = plan.icon;
+                            const pricePerMonth = billingCycle === 'annual'
+                                ? (plan.price.annual / 12).toFixed(0)
+                                : plan.price.monthly;
+                            const savings = calculateSavings(plan);
+
+                            return (
+                                <StaggerItem key={plan.id}>
+                                    <div
+                                        className={`relative bg-zinc-900/50 backdrop-blur-xl rounded-[2rem] border-2 ${plan.popular ? 'border-orange-500 shadow-2xl shadow-orange-500/20 z-10' : 'border-white/5 hover:border-white/10'
+                                            } overflow-hidden transition-all duration-300 group hover:-translate-y-2`}
+                                    >
+                                        {/* Popular Badge */}
+                                        {plan.popular && (
+                                            <div className="absolute top-0 right-0 bg-gradient-to-r from-orange-500 to-red-600 text-white px-6 py-2 rounded-bl-2xl font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg z-20">
+                                                <Zap className="w-4 h-4 fill-current" />
+                                                Mais Popular
+                                            </div>
+                                        )}
+
+                                        {/* Header */}
+                                        <div className={`p-8 relative overflow-hidden`}>
+                                            <div className={`absolute inset-0 bg-gradient-to-br ${plan.color} opacity-10 group-hover:opacity-20 transition-opacity`} />
+
+                                            <div className="relative z-10">
+                                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${plan.color} flex items-center justify-center mb-6 shadow-lg`}>
+                                                    <Icon className="w-7 h-7 text-white" />
+                                                </div>
+                                                <h3 className="text-3xl font-black text-white uppercase italic">{plan.name}</h3>
+                                                <p className="text-zinc-400 font-medium mt-1">{plan.tagline}</p>
+                                            </div>
+                                        </div>
+
+                                        <div className="px-8 pb-8">
+                                            {/* Price */}
+                                            <div className="mb-8 p-4 bg-zinc-950/50 rounded-2xl border border-white/5">
+                                                <div className="flex items-baseline gap-1">
+                                                    <span className="text-sm font-bold text-zinc-500">R$</span>
+                                                    <span className="text-5xl font-black text-white">{pricePerMonth}</span>
+                                                    <span className="text-zinc-500 font-bold">/mês</span>
+                                                </div>
+                                                {billingCycle === 'annual' && (
+                                                    <div className="mt-2 text-xs font-bold text-green-500 flex items-center gap-1">
+                                                        <Check className="w-3 h-3" />
+                                                        Economize {savings.percentage}% no plano anual
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Features */}
+                                            <div className="space-y-4 mb-8">
+                                                {plan.features.map((feature, i) => (
+                                                    <div key={i} className="flex items-start gap-3">
+                                                        {feature.included ? (
+                                                            <div className="mt-0.5 p-0.5 bg-green-500/20 rounded-full text-green-500 shrink-0">
+                                                                <Check className="w-3 h-3" />
+                                                            </div>
+                                                        ) : (
+                                                            <div className="mt-0.5 p-0.5 bg-zinc-800 rounded-full text-zinc-600 shrink-0">
+                                                                <X className="w-3 h-3" />
+                                                            </div>
+                                                        )}
+                                                        <span className={`text-sm font-medium ${feature.included ? 'text-zinc-300' : 'text-zinc-600 line-through'
+                                                            }`}>
+                                                            {feature.name}
+                                                        </span>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            {/* CTA */}
+                                            <button
+                                                className={`w-full py-4 rounded-xl font-black uppercase tracking-wide transition-all flex items-center justify-center gap-2 ${plan.popular
+                                                    ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50'
+                                                    : 'bg-white text-zinc-900 hover:bg-zinc-200'
+                                                    }`}
+                                            >
+                                                {plan.cta} <ArrowRight className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </StaggerItem>
+                            );
+                        })}
                     </div>
-                </div>
-            </FadeInWhenVisible>
+                </StaggerContainer>
+
+                {/* Benefits Section */}
+                <FadeInWhenVisible delay={0.3}>
+                    <div className="max-w-7xl mx-auto mt-24">
+                        <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/5 rounded-[2.5rem] p-12 relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-600/5 to-red-600/5" />
+
+                            <div className="relative z-10">
+                                <h2 className="text-3xl md:text-4xl font-black text-white text-center mb-16 uppercase italic">
+                                    Por que escolher a <span className="text-orange-500">GymMaster</span>?
+                                </h2>
+                                <div className="grid md:grid-cols-4 gap-12">
+                                    {[
+                                        { icon: Users, title: 'Comunidade', desc: 'Faça parte de uma elite fitness engajada' },
+                                        { icon: Calendar, title: 'Flexibilidade', desc: 'Treine no seu horário, sem desculpas' },
+                                        { icon: TrendingUp, title: 'Resultados', desc: 'Metodologia comprovada por atletas' },
+                                        { icon: Sparkles, title: 'Premium', desc: 'Equipamentos de última geração' }
+                                    ].map((benefit, i) => {
+                                        const BenefitIcon = benefit.icon;
+                                        return (
+                                            <div key={i} className="text-center group">
+                                                <div className="inline-flex p-5 bg-gradient-to-br from-zinc-800 to-zinc-900 rounded-2xl mb-6 shadow-lg border border-white/5 group-hover:border-orange-500/30 transition-colors">
+                                                    <BenefitIcon className="w-8 h-8 text-orange-500" />
+                                                </div>
+                                                <h3 className="text-xl font-black text-white mb-3 uppercase">{benefit.title}</h3>
+                                                <p className="text-zinc-400 text-sm font-medium leading-relaxed">{benefit.desc}</p>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </FadeInWhenVisible>
+            </div>
         </div>
     );
 }

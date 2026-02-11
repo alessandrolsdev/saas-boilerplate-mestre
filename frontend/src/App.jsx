@@ -8,18 +8,19 @@ import ScrollProgress from './components/ui/ScrollProgress'
 import { ToastProvider } from './components/ui/Toast'
 import { ThemeProvider } from './components/ui/ThemeToggle'
 import ErrorBoundary from './components/ErrorBoundary'
+import MainLayout from './components/layout/MainLayout'
 
 // Pages & Layouts
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
-import Clients from './pages/Clients'
-import Charges from './pages/Charges'
 
 // Dashboards Personalizados
 import BeautyDashboard from './pages/beauty/BeautyDashboard'
 import GymDashboard from './pages/gym/GymDashboard'
 import FinanceDashboard from './pages/finance/FinanceDashboard'
+import Clients from './pages/finance/Clients'
+import Charges from './pages/finance/Charges'
 
 // Landing Pages
 import MasterHome from './pages/landing/MasterHome'
@@ -39,6 +40,7 @@ import Professionals from './pages/beauty/Professionals'
 import Members from './pages/gym/Members'
 import CheckIns from './pages/gym/CheckIns'
 import Plans from './pages/gym/Plans'
+import GymPayments from './pages/gym/GymPayments'
 
 // React Query Client
 const queryClient = new QueryClient()
@@ -61,33 +63,39 @@ function AnimatedRoutes() {
         <Route path="/terraplanagem" element={<ConstructionLP />} />
         <Route path="/pizzaria" element={<PizzariaLP />} />
 
+
         {/* Authentication */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Dashboard Routes - AGORA PÚBLICAS */}
-        <Route path="/dashboard" element={<Dashboard />} />
+        {/* Private Routes (Wrapped in MainLayout) */}
+        <Route element={<MainLayout />}>
+          {/* Main Dashboard */}
+          <Route path="/dashboard" element={<Dashboard />} />
 
-        {/* Financial SaaS Dashboard */}
-        <Route path="/finance-dashboard" element={<FinanceDashboard />} />
-        <Route path="/clients" element={<Clients />} />
-        <Route path="/finance" element={<Charges />} />
+          {/* Financial SaaS */}
+          <Route path="/finance-dashboard" element={<FinanceDashboard />} />
+          <Route path="/finance/clients" element={<Clients />} />
+          <Route path="/finance/charges" element={<Charges />} />
 
-        {/* Beauty SaaS Dashboard */}
-        <Route path="/beauty/dashboard" element={<BeautyDashboard />} />
-        <Route path="/beauty/appointments" element={<Appointments />} />
-        <Route path="/beauty/services" element={<Services />} />
-        <Route path="/beauty/professionals" element={<Professionals />} />
+          {/* Beauty SaaS */}
+          <Route path="/beauty/dashboard" element={<BeautyDashboard />} />
+          <Route path="/beauty/appointments" element={<Appointments />} />
+          <Route path="/beauty/services" element={<Services />} />
+          <Route path="/beauty/professionals" element={<Professionals />} />
 
-        {/* Gym SaaS Dashboard */}
-        <Route path="/gym/dashboard" element={<GymDashboard />} />
-        <Route path="/gym/members" element={<Members />} />
-        <Route path="/gym/check-ins" element={<CheckIns />} />
-        <Route path="/gym/plans" element={<Plans />} />
+          {/* Gym SaaS */}
+          <Route path="/gym/dashboard" element={<GymDashboard />} />
+          <Route path="/gym/members" element={<Members />} />
+          <Route path="/gym/check-ins" element={<CheckIns />} />
+          <Route path="/gym/plans" element={<Plans />} />
+          <Route path="/gym/payments" element={<GymPayments />} />
+        </Route>
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
     </AnimatePresence>
   );
 }

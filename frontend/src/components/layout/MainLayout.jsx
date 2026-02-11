@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import {
     LayoutDashboard, Users, LogOut, Bell, Search,
@@ -8,6 +8,7 @@ import {
 import { useAuth } from '@/stores/useAuth'
 import { cn } from '@/lib/utils'
 import ProductSwitcher from '../layout/ProductSwitcher'
+import Breadcrumbs from './Breadcrumbs'
 
 export default function MainLayout() {
     const navigate = useNavigate()
@@ -37,15 +38,51 @@ export default function MainLayout() {
         } else {
             // Default (Finance)
             return [
-                { icon: LayoutDashboard, label: 'Visão Geral', path: '/dashboard' },
-                { icon: Users, label: 'Clientes', path: '/clients' },
-                { icon: PieChart, label: 'Receitas', path: '/finance' },
-                { icon: CreditCard, label: 'Cobranças', path: '/charges' },
+                { icon: LayoutDashboard, label: 'Visão Geral', path: '/finance-dashboard' },
+                { icon: Users, label: 'Clientes', path: '/finance/clients' },
+                { icon: CreditCard, label: 'Cobranças', path: '/finance/charges' },
             ];
         }
     };
 
+    // Dynamic Theme based on Route
+    const getTheme = () => {
+        const path = location.pathname;
+        if (path.includes('/beauty')) {
+            return {
+                name: 'beauty',
+                gradient: 'from-rose-500 to-pink-500',
+                sidebarBorder: 'border-rose-900/20',
+                activeItem: 'bg-rose-600 text-white shadow-lg shadow-rose-500/20',
+                ambient: 'bg-rose-600/10',
+                accent: 'text-rose-500',
+                logo: <>Beauty<span className="text-rose-500">Flow</span></>
+            };
+        } else if (path.includes('/gym')) {
+            return {
+                name: 'gym',
+                gradient: 'from-orange-500 to-red-500',
+                sidebarBorder: 'border-orange-900/20',
+                activeItem: 'bg-orange-600 text-white shadow-lg shadow-orange-500/20',
+                ambient: 'bg-orange-600/10',
+                accent: 'text-orange-500',
+                logo: <>Gym<span className="text-orange-500">Flow</span></>
+            };
+        } else {
+            return {
+                name: 'finance',
+                gradient: 'from-indigo-500 to-purple-500',
+                sidebarBorder: 'border-slate-800',
+                activeItem: 'bg-indigo-600 text-white shadow-lg shadow-indigo-500/20',
+                ambient: 'bg-indigo-600/10',
+                accent: 'text-indigo-500',
+                logo: <>SaaS<span className="text-indigo-500">Mestre</span></>
+            };
+        }
+    };
+
     const menuItems = getMenuItems();
+    const theme = getTheme();
 
     const handleLogout = () => {
         logout()
@@ -57,16 +94,13 @@ export default function MainLayout() {
 
             {/* Sidebar Desktop */}
             <aside className={cn(
-                "fixed h-screen border-r border-slate-800 bg-slate-950 z-50 transition-all duration-300 flex flex-col",
-                sidebarOpen ? "w-64" : "w-20"
+                "fixed h-screen border-r bg-slate-950 z-50 transition-all duration-300 flex flex-col",
+                sidebarOpen ? "w-64" : "w-20",
+                theme.sidebarBorder
             )}>
-                <div className="h-20 flex items-center justify-center border-b border-slate-800/50">
+                <div className={cn("h-20 flex items-center justify-center border-b", theme.sidebarBorder)}>
                     <div className="flex items-center gap-2 font-bold text-xl text-white">
-                        {sidebarOpen ? (
-                            <>SaaS<span className="text-indigo-500">Mestre</span></>
-                        ) : (
-                            <span className="text-indigo-500">SM</span>
-                        )}
+                        {sidebarOpen ? theme.logo : <span className={theme.accent}>SM</span>}
                     </div>
                 </div>
 
@@ -79,7 +113,7 @@ export default function MainLayout() {
                                 onClick={() => navigate(item.path)}
                                 className={cn(
                                     "w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all relative group",
-                                    isActive ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "text-slate-400 hover:bg-slate-900 hover:text-white"
+                                    isActive ? theme.activeItem : "text-slate-400 hover:bg-slate-900 hover:text-white"
                                 )}
                             >
                                 <item.icon size={20} />
@@ -95,7 +129,7 @@ export default function MainLayout() {
                     })}
                 </nav>
 
-                <div className="p-4 border-t border-slate-800/50">
+                <div className={cn("p-4 border-t", theme.sidebarBorder)}>
                     <button
                         onClick={handleLogout}
                         className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-all"
@@ -112,20 +146,26 @@ export default function MainLayout() {
                 sidebarOpen ? "ml-64" : "ml-20"
             )}>
                 {/* Ambient Light */}
-                <div className="absolute top-0 left-0 w-[600px] h-[400px] bg-indigo-600/10 blur-[120px] pointer-events-none rounded-full mix-blend-screen z-0" />
+                <div className={cn(
+                    "absolute top-0 left-0 w-[600px] h-[400px] blur-[120px] pointer-events-none rounded-full mix-blend-screen z-0",
+                    theme.ambient
+                )} />
 
-                <header className="sticky top-0 z-40 px-8 h-20 flex items-center justify-between backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/50">
+                <header className={cn(
+                    "sticky top-0 z-40 px-8 h-20 flex items-center justify-between backdrop-blur-xl bg-slate-950/80 border-b",
+                    theme.sidebarBorder
+                )}>
                     <div className="flex items-center gap-4">
                         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 hover:bg-slate-800 rounded-lg lg:hidden">
                             <Menu size={20} />
                         </button>
 
                         {/* Product Switcher - NEW */}
-                        <div className="border-r border-slate-800/50 pr-4 mr-2">
+                        <div className={cn("border-r pr-4 mr-2", theme.sidebarBorder)}>
                             <ProductSwitcher />
                         </div>
 
-                        <div className="hidden md:flex items-center gap-2 text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border border-slate-800/50">
+                        <div className={cn("hidden md:flex items-center gap-2 text-slate-400 bg-slate-900/50 px-3 py-1.5 rounded-lg border", theme.sidebarBorder)}>
                             <Search size={14} />
                             <input className="bg-transparent border-none outline-none text-sm w-48 placeholder:text-slate-600" placeholder="Buscar..." />
                         </div>
@@ -134,13 +174,14 @@ export default function MainLayout() {
                     <div className="flex items-center gap-4">
                         <button className="p-2 text-slate-400 hover:text-white transition-colors relative">
                             <Bell size={20} />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-500 rounded-full"></span>
+                            <span className={cn("absolute top-2 right-2 w-2 h-2 rounded-full", theme.activeItem.split(' ')[0])}></span>
                         </button>
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border border-indigo-400/30"></div>
+                        <div className={cn("w-8 h-8 rounded-full bg-gradient-to-tr border border-white/10", theme.gradient)}></div>
                     </div>
                 </header>
 
                 <div className="p-8 relative z-10 max-w-[1600px] mx-auto">
+                    <Breadcrumbs />
                     <Outlet />
                 </div>
             </main>
